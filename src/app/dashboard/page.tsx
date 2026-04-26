@@ -11,6 +11,7 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<any>(null);
   const [prediction, setPrediction] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [flipped, setFlipped] = useState(false);
   const router = useRouter();
   const { t, language } = useLanguage();
 
@@ -109,16 +110,97 @@ export default function Dashboard() {
                 color: 'rgba(255, 255, 255, 0.9)',
                 fontFamily: 'var(--font-body)'
               }}>
-                {prediction.split('\n').map((line, i) => (
-                  <p key={i} style={{ marginBottom: line.startsWith('#') || line.includes('**') ? '24px' : '16px' }}>
-                    {line.includes('**') ? (
-                      <span className="gradient-gold royal-title" style={{ display: 'block', fontSize: '1.1rem', marginTop: i > 0 ? '12px' : '0' }}>
-                        {line.replace(/\*\*/g, '').replace(/#/g, '')}
-                      </span>
-                    ) : line}
-                  </p>
-                ))}
+                {prediction.split('\n').map((line, i) => {
+                  if (line.includes('AstroSage Divine Remedy')) return null;
+                  return (
+                    <p key={i} style={{ marginBottom: line.startsWith('#') || line.includes('**') ? '24px' : '16px' }}>
+                      {line.includes('**') ? (
+                        <span className="gradient-gold royal-title" style={{ display: 'block', fontSize: '1.1rem', marginTop: i > 0 ? '12px' : '0' }}>
+                          {line.replace(/\*\*/g, '').replace(/#/g, '')}
+                        </span>
+                      ) : line}
+                    </p>
+                  );
+                })}
               </div>
+            </div>
+
+            <div className="section-title">Divine Remedy</div>
+            <div style={{ perspective: '1000px', marginBottom: '40px' }}>
+              <motion.div 
+                onClick={() => setFlipped(!flipped)}
+                initial={false}
+                animate={{ rotateY: flipped ? 180 : 0 }}
+                transition={{ duration: 0.8, type: 'spring', stiffness: 260, damping: 20 }}
+                style={{ 
+                  width: '100%', 
+                  height: '240px', 
+                  position: 'relative', 
+                  transformStyle: 'preserve-3d',
+                  cursor: 'pointer'
+                }}
+              >
+                {/* Front of Card */}
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  backfaceVisibility: 'hidden',
+                  background: 'var(--royal-gold)',
+                  borderRadius: '24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '24px',
+                  boxShadow: '0 20px 40px rgba(245, 158, 11, 0.3)',
+                  border: '4px solid rgba(255, 255, 255, 0.2)'
+                }}>
+                  <div style={{ 
+                    width: '80px', 
+                    height: '80px', 
+                    borderRadius: '50%', 
+                    border: '2px solid rgba(0,0,0,0.2)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '16px'
+                  }}>
+                    <Sparkles size={40} color="black" />
+                  </div>
+                  <h3 style={{ color: 'black', fontFamily: 'var(--font-royal)', fontSize: '1.2rem', textAlign: 'center' }}>SEAL OF WISDOM</h3>
+                  <p style={{ color: 'rgba(0,0,0,0.6)', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', marginTop: '8px' }}>TAP TO REVEAL RITUAL</p>
+                </div>
+
+                {/* Back of Card */}
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  backfaceVisibility: 'hidden',
+                  transform: 'rotateY(180deg)',
+                  background: 'rgba(30, 41, 59, 0.9)',
+                  borderRadius: '24px',
+                  padding: '24px',
+                  border: '2px solid var(--accent-gold)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ position: 'absolute', top: '12px', right: '12px', opacity: 0.3 }}>
+                    <Star size={16} color="var(--accent-gold)" />
+                  </div>
+                  <p style={{ 
+                    fontSize: '1rem', 
+                    lineHeight: '1.6', 
+                    color: 'var(--accent-gold)',
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: 600
+                  }}>
+                    {prediction.split('Divine Remedy').pop()?.replace(/[*#]/g, '').trim() || "Chant 'Om' 108 times for spiritual clarity."}
+                  </p>
+                </div>
+              </motion.div>
             </div>
 
             <motion.button 
