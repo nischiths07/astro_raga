@@ -130,9 +130,10 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.4 }}
         transition={{ delay: 1.2 }}
-        style={{ position: 'absolute', bottom: '24px', fontSize: '0.65rem', letterSpacing: '0.15em', color: 'var(--accent-gold)' }}
+        style={{ position: 'absolute', bottom: '24px', fontSize: '0.65rem', letterSpacing: '0.15em', color: 'var(--accent-gold)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '4px' }}
       >
-        ESTABLISHED IN THE COSMOS
+        <span>ESTABLISHED IN THE COSMOS</span>
+        <span style={{ fontWeight: 700 }}>BY NISC_01</span>
       </motion.div>
     </div>
   );

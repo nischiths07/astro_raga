@@ -157,6 +157,10 @@ export default function Dashboard() {
             >
               <RefreshCw size={20} /> Refresh Insight
             </motion.button>
+
+            <div style={{ marginTop: '60px', textAlign: 'center', opacity: 0.4, fontSize: '0.7rem', color: 'var(--accent-gold)', letterSpacing: '0.1em' }}>
+              MADE WITH COSMIC ENERGY BY NISC_01
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
