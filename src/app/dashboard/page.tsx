@@ -163,23 +163,23 @@ export default function Dashboard() {
                     flex: 1, 
                     overflowY: 'auto', 
                     paddingRight: '8px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    textAlign: 'center',
                     scrollbarWidth: 'thin',
-                    scrollbarColor: 'var(--accent-gold) transparent'
+                    scrollbarColor: 'var(--accent-gold) transparent',
+                    display: 'flex',
+                    flexDirection: 'column'
                   }}>
-                    <p style={{ 
-                      fontSize: '1rem', 
-                      lineHeight: '1.7', 
-                      color: 'var(--text-main)',
-                      fontFamily: 'var(--font-body)',
-                      fontWeight: 500
-                    }}>
-                      {prediction.split('Divine Remedy').pop()?.replace(/[*#]/g, '').trim() || "Embrace silence for 11 minutes at sunset."}
-                    </p>
+                    <div style={{ margin: 'auto 0', width: '100%' }}>
+                      <p style={{ 
+                        fontSize: '1rem', 
+                        lineHeight: '1.7', 
+                        color: 'var(--text-main)',
+                        fontFamily: 'var(--font-body)',
+                        fontWeight: 500,
+                        textAlign: 'center'
+                      }}>
+                        {prediction.split('Divine Remedy').pop()?.replace(/[*#]/g, '').trim() || "Embrace silence for 11 minutes at sunset."}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </motion.div>
