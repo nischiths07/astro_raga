@@ -238,15 +238,26 @@ h1, h2, h3, h4 {
 
 /* Utils & Spacing */
 .container-full {
+  width: 100%;
   max-width: 450px;
   margin: 0 auto;
-  padding: 40px 24px 160px 24px;
+  padding: 32px 20px 140px 20px;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
   position: relative;
   background: var(--bg-deep);
   box-shadow: 0 0 100px rgba(0, 0, 0, 0.8);
+}
+
+@media (max-width: 380px) {
+  .container-full {
+    padding: 24px 16px 120px 16px;
+  }
+  
+  .royal-title {
+    font-size: 0.9em;
+  }
 }
 
 @media (min-width: 450px) {
@@ -281,4 +292,29 @@ h1, h2, h3, h4 {
 
 .floating {
   animation: float 4s infinite ease-in-out;
+}
+
+/* Language Toggle Responsiveness */
+.language-toggle {
+  position: absolute;
+  top: 24px;
+  right: 20px;
+  z-index: 1000;
+  font-size: 0.8rem;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-width: 1px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 380px) {
+  .language-toggle {
+    top: 16px;
+    right: 12px;
+    padding: 6px 12px;
+    font-size: 0.7rem;
+  }
 }

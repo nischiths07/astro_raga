@@ -12,19 +12,7 @@ export default function LanguageToggle() {
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={toggleLanguage}
-      className="secondary-button"
-      style={{
-        position: 'absolute',
-        top: '24px',
-        right: '24px',
-        zIndex: 1000,
-        fontSize: '0.85rem',
-        padding: '10px 20px',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        borderWidth: '1px'
-      }}
+      className="secondary-button language-toggle"
     >
       <Languages size={16} className="text-gold" />
       {t.switchLanguage}
