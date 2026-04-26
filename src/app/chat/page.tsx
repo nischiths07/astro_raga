@@ -53,10 +53,6 @@ export default function ChatPage() {
         }),
       });
       
-      if (!response.ok) {
-        throw new Error('API unstable');
-      }
-
       const data = await response.json();
       if (data.content) {
         setMessages(prev => [...prev, { role: 'assistant', content: data.content }]);
@@ -64,7 +60,6 @@ export default function ChatPage() {
         throw new Error('Empty response');
       }
     } catch (error) {
-      console.error("Chat Error:", error);
       setMessages(prev => [...prev, { role: 'assistant', content: "Forgive me, the cosmic connection was momentarily severed. Please try again." }]);
     } finally {
       setLoading(false);
@@ -72,48 +67,66 @@ export default function ChatPage() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', paddingBottom: '80px' }}>
-      <header style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '16px', borderBottom: '1px solid rgba(251, 191, 36, 0.1)' }}>
-        <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: 'var(--text-muted)' }}>
-          <ArrowLeft size={20} />
+    <div className="container-full" style={{ padding: 0, height: '100dvh', overflow: 'hidden' }}>
+      <header style={{ 
+        padding: '20px', 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '16px', 
+        borderBottom: '1px solid rgba(251, 191, 36, 0.1)',
+        background: 'rgba(5, 5, 10, 0.8)',
+        backdropFilter: 'blur(10px)'
+      }}>
+        <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+          <ArrowLeft size={24} />
         </button>
         <div>
-          <h2 className="gradient-gold" style={{ fontSize: '1.2rem', fontWeight: 700 }}>AstroSage AI</h2>
-          <p style={{ fontSize: '0.75rem', color: 'var(--accent-gold)' }}>Cosmic Agent Online</p>
+          <h2 className="gradient-gold royal-title" style={{ fontSize: '1.2rem' }}>AstroSage AI</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }} />
+            <span style={{ fontSize: '0.65rem', color: 'var(--accent-gold)', letterSpacing: '0.1em', fontWeight: 700, textTransform: 'uppercase' }}>Connected</span>
+          </div>
         </div>
       </header>
 
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ 
+        flex: 1, 
+        overflowY: 'auto', 
+        padding: '24px', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '20px',
+        paddingBottom: '160px' 
+      }}>
         <AnimatePresence>
           {messages.map((msg, i) => (
             <motion.div
               key={i}
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
+              initial={{ opacity: 0, y: 10, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               style={{
                 alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                 maxWidth: '85%',
-                padding: '14px 18px',
-                borderRadius: '20px',
-                background: msg.role === 'user' ? 'var(--accent-gold)' : 'rgba(30, 41, 59, 0.5)',
+                padding: '16px 20px',
+                borderRadius: msg.role === 'user' ? '24px 24px 4px 24px' : '24px 24px 24px 4px',
+                background: msg.role === 'user' ? 'var(--royal-gold)' : 'rgba(255, 255, 255, 0.05)',
                 color: msg.role === 'user' ? 'black' : 'white',
                 border: msg.role === 'user' ? 'none' : '1px solid rgba(251, 191, 36, 0.1)',
-                boxShadow: msg.role === 'user' ? '0 4px 12px rgba(251, 191, 36, 0.3)' : 'none',
-                position: 'relative'
+                boxShadow: msg.role === 'user' ? '0 10px 30px rgba(245, 158, 11, 0.2)' : 'none',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', opacity: 0.7, fontSize: '0.7rem' }}>
-                {msg.role === 'user' ? <User size={12} /> : <Bot size={12} />}
-                <span>{msg.role === 'user' ? 'You' : 'AstroSage'}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px', opacity: 0.7, fontSize: '0.6rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {msg.role === 'user' ? <User size={10} /> : <Bot size={10} />}
+                <span>{msg.role === 'user' ? 'Seeker' : 'AstroSage'}</span>
               </div>
-              <p style={{ fontSize: '0.95rem', lineHeight: '1.5' }}>{msg.content}</p>
+              <p style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>{msg.content}</p>
             </motion.div>
           ))}
           {loading && (
             <motion.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: 'rgba(30, 41, 59, 0.3)', borderRadius: '15px' }}
+              style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: 'rgba(251, 191, 36, 0.05)', borderRadius: '20px', border: '1px solid rgba(251, 191, 36, 0.1)' }}
             >
               <motion.div
                 animate={{ rotate: 360 }}
@@ -121,62 +134,72 @@ export default function ChatPage() {
               >
                 <Sparkles size={18} className="text-gold" />
               </motion.div>
-              <span style={{ fontSize: '0.8rem', color: 'var(--accent-gold)', fontStyle: 'italic' }}>AstroSage is consulting the stars...</span>
+              <span style={{ fontSize: '0.8rem', color: 'var(--accent-gold)', fontStyle: 'italic', fontWeight: 500 }}>Consulting the stars...</span>
             </motion.div>
           )}
         </AnimatePresence>
         <div ref={messagesEndRef} />
       </div>
 
-      <form 
-        onSubmit={handleSend}
-        style={{ 
-          padding: '16px', 
-          background: 'rgba(15, 23, 42, 0.8)', 
-          backdropFilter: 'blur(10px)',
-          display: 'flex', 
-          gap: '12px',
-          position: 'fixed',
-          bottom: '80px',
-          left: 0,
-          right: 0
-        }}
-      >
-        <input 
-          type="text" 
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Ask the stars..."
-          style={{
-            flex: 1,
+      <div style={{ 
+        position: 'absolute', 
+        bottom: '80px', 
+        left: 0, 
+        right: 0, 
+        padding: '20px',
+        background: 'linear-gradient(to top, var(--bg-deep) 80%, transparent)',
+        zIndex: 10
+      }}>
+        <form 
+          onSubmit={handleSend}
+          style={{ 
+            display: 'flex', 
+            gap: '12px',
             background: 'rgba(30, 41, 59, 0.5)',
+            padding: '8px',
+            borderRadius: '20px',
             border: '1px solid rgba(251, 191, 36, 0.2)',
-            borderRadius: '14px',
-            padding: '12px 16px',
-            color: 'white',
-            outline: 'none'
-          }}
-        />
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          type="submit"
-          disabled={loading}
-          style={{
-            background: 'var(--accent-gold)',
-            border: 'none',
-            borderRadius: '14px',
-            width: '48px',
-            height: '48px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'black',
-            cursor: 'pointer'
+            backdropFilter: 'blur(20px)'
           }}
         >
-          <Send size={20} />
-        </motion.button>
-      </form>
+          <input 
+            type="text" 
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask the stars..."
+            style={{
+              flex: 1,
+              background: 'none',
+              border: 'none',
+              padding: '12px 16px',
+              color: 'white',
+              outline: 'none',
+              fontSize: '0.95rem'
+            }}
+          />
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            type="submit"
+            disabled={loading}
+            style={{
+              background: 'var(--royal-gold)',
+              border: 'none',
+              borderRadius: '14px',
+              width: '44px',
+              height: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'black',
+              cursor: 'pointer',
+              opacity: loading ? 0.5 : 1
+            }}
+          >
+            <Send size={18} />
+          </motion.button>
+        </form>
+      </div>
 
       <BottomNav />
     </div>
