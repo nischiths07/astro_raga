@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
@@ -77,6 +78,21 @@ export async function POST(req: Request) {
 
     if (!responseText) {
       responseText = "The celestial path is temporarily blocked. Please ensure your OpenRouter API key is valid and has not reached its quota.";
+    }
+
+    // Save to database if profile has an ID
+    if (profile?.id) {
+      try {
+        const lastUserMessage = messages[messages.length - 1].content;
+        await prisma.message.createMany({
+          data: [
+            { userId: profile.id, role: 'user', content: lastUserMessage },
+            { userId: profile.id, role: 'ai', content: responseText },
+          ],
+        });
+      } catch (dbError) {
+        console.error("Failed to save chat to DB:", dbError);
+      }
     }
 
     return NextResponse.json({ content: responseText });

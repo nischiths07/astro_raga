@@ -1,9 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    const { name, rashi, nakshatra, pada, birthDate, birthTime, language } = await req.json();
+    const body = await req.json();
+    const { id, name, rashi, nakshatra, pada, birthDate, birthTime, language } = body;
     
     const geminiKey = process.env.GEMINI_API_KEY;
     const openRouterKey = process.env.OPENROUTER_API_KEY;
@@ -86,6 +88,21 @@ export async function POST(req: Request) {
 
     if (!prediction) {
       prediction = language === 'kn' ? `ಶುಭ ದಿನ ${name}.` : `Greetings ${name}, the stars favor you.`;
+    }
+
+    // Save to database if user exists
+    if (body.id) {
+      try {
+        await prisma.message.create({
+          data: {
+            userId: body.id,
+            role: 'ai',
+            content: `Full Analysis: ${prediction.substring(0, 500)}...`,
+          },
+        });
+      } catch (dbError) {
+        console.error("Failed to save prediction to DB:", dbError);
+      }
     }
 
     return NextResponse.json({ prediction });

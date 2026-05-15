@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/components/LanguageContext';
-import { RefreshCw, Star, Sparkles, LogOut, ChevronRight } from 'lucide-react';
+import { RefreshCw, Star, Sparkles, LogOut, ChevronRight, ShieldCheck } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 
 export default function Dashboard() {
@@ -220,8 +220,29 @@ export default function Dashboard() {
               <RefreshCw size={18} /> Refresh Destiny
             </motion.button>
 
-            <div style={{ textAlign: 'center', opacity: 0.3, fontSize: '0.65rem', color: 'var(--accent-gold)', letterSpacing: '0.2em' }}>
-              MADE WITH COSMIC ENERGY BY NISC_01
+            <div style={{ textAlign: 'center', opacity: 0.4, fontSize: '0.65rem', color: 'var(--accent-gold)', letterSpacing: '0.15em', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+              <div style={{
+                fontSize: '0.7rem',
+                color: 'rgba(255, 255, 255, 0.7)',
+                background: 'rgba(251, 191, 36, 0.05)',
+                padding: '8px 14px',
+                borderRadius: '10px',
+                border: '1px solid rgba(251, 191, 36, 0.15)',
+                maxWidth: '300px',
+                display: 'flex',
+                gap: '10px',
+                alignItems: 'center',
+                marginBottom: '10px',
+                lineHeight: '1.5',
+                letterSpacing: 'normal',
+                textTransform: 'none',
+                textAlign: 'left'
+              }}>
+                <ShieldCheck size={16} style={{ flexShrink: 0, color: 'var(--accent-gold)' }} />
+                <span>For entertainment purposes only. The universe guides, but your choices shape your destiny.</span>
+              </div>
+              <span>AstroRaga</span>
+              <span style={{ fontWeight: 700, textTransform: 'uppercase' }}>BY nisc07</span>
             </div>
           </motion.div>
         )}

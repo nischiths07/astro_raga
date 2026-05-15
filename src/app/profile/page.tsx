@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/components/LanguageContext';
-import { ChevronRight, ArrowLeft, UserCircle } from 'lucide-react';
+import { ChevronRight, ArrowLeft, UserCircle, ShieldCheck } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 
 export default function Profile() {
@@ -19,6 +19,8 @@ export default function Profile() {
     birthTime: '',
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     const savedProfile = localStorage.getItem('astroraga_profile');
     if (savedProfile) {
@@ -26,10 +28,34 @@ export default function Profile() {
     }
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem('astroraga_profile', JSON.stringify(formData));
-    router.push('/dashboard');
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Save the profile along with the new database ID
+        localStorage.setItem('astroraga_profile', JSON.stringify({ ...formData, id: data.user.id }));
+        router.push('/dashboard');
+      } else {
+        alert('Failed to save profile. Please try again.');
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error('Error saving profile:', error);
+      alert('An error occurred while saving.');
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -139,8 +165,9 @@ export default function Profile() {
             whileHover={{ scale: 1.02, boxShadow: '0 0 30px rgba(251, 191, 36, 0.4)' }}
             whileTap={{ scale: 0.98 }}
             type="submit"
+            disabled={isSubmitting}
             className="action-button royal-title"
-            style={{ width: '100%', marginBottom: '40px' }}
+            style={{ width: '100%', marginBottom: '40px', opacity: isSubmitting ? 0.7 : 1 }}
           >
             {t.saveProfile}
             <ChevronRight size={20} />
@@ -148,8 +175,29 @@ export default function Profile() {
         </form>
       </motion.div>
 
-      <div style={{ textAlign: 'center', opacity: 0.2, fontSize: '0.65rem', color: 'var(--accent-gold)', letterSpacing: '0.2em', marginBottom: '20px' }}>
-        ASTROSAGE DIVINE GATEWAY
+      <div style={{ textAlign: 'center', opacity: 0.4, fontSize: '0.65rem', color: 'var(--accent-gold)', letterSpacing: '0.15em', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+        <div style={{
+          fontSize: '0.7rem',
+          color: 'rgba(255, 255, 255, 0.7)',
+          background: 'rgba(251, 191, 36, 0.05)',
+          padding: '8px 14px',
+          borderRadius: '10px',
+          border: '1px solid rgba(251, 191, 36, 0.15)',
+          maxWidth: '300px',
+          display: 'flex',
+          gap: '10px',
+          alignItems: 'center',
+          marginBottom: '10px',
+          lineHeight: '1.5',
+          letterSpacing: 'normal',
+          textTransform: 'none',
+          textAlign: 'left'
+        }}>
+          <ShieldCheck size={16} style={{ flexShrink: 0, color: 'var(--accent-gold)' }} />
+          <span>For entertainment purposes only. The universe guides, but your choices shape your destiny.</span>
+        </div>
+        <span>AstroRaga</span>
+        <span style={{ fontWeight: 700, textTransform: 'uppercase' }}>BY nisc07</span>
       </div>
 
       <BottomNav />

@@ -181,6 +181,17 @@ h1, h2, h3, h4 {
   font-size: 1rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   appearance: none;
+  color-scheme: dark;
+}
+
+.premium-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) sepia(1) saturate(5) hue-rotate(35deg);
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.premium-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 .premium-input option {

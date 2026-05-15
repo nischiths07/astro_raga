@@ -146,10 +146,54 @@ export default function ChatPage() {
         bottom: '80px', 
         left: 0, 
         right: 0, 
-        padding: '20px',
-        background: 'linear-gradient(to top, var(--bg-deep) 80%, transparent)',
+        padding: '10px 20px 20px 20px',
+        background: 'linear-gradient(to top, var(--bg-deep) 90%, transparent)',
         zIndex: 10
       }}>
+        {/* Suggestions Row */}
+        {!loading && messages.length < 3 && (
+          <div style={{ 
+            display: 'flex', 
+            gap: '10px', 
+            overflowX: 'auto', 
+            paddingBottom: '12px',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch'
+          }}>
+            {[
+              "What does my Shani Dasha reveal?",
+              "Career shift guidance?",
+              "Lucky colors this week?",
+              "Vedic focus remedies?"
+            ].map((text, i) => (
+              <motion.button
+                key={i}
+                whileHover={{ scale: 1.05, background: 'rgba(251, 191, 36, 0.15)' }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  setInput(text);
+                  // Optional: Automatically send after a small delay
+                }}
+                style={{
+                  whiteSpace: 'nowrap',
+                  padding: '8px 16px',
+                  borderRadius: '12px',
+                  background: 'rgba(251, 191, 36, 0.05)',
+                  border: '1px solid rgba(251, 191, 36, 0.2)',
+                  color: 'var(--accent-gold)',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  flexShrink: 0
+                }}
+              >
+                {text}
+              </motion.button>
+            ))}
+          </div>
+        )}
+
         <form 
           onSubmit={handleSend}
           style={{ 

@@ -36,18 +36,25 @@ export default function Home() {
         className="text-center"
         style={{ marginBottom: '40px' }}
       >
-        <div style={{ position: 'relative', display: 'inline-block', marginBottom: '20px' }}>
+        <div style={{ position: 'relative', display: 'inline-block', marginBottom: '30px' }}>
           <motion.div
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            style={{ 
-              background: 'rgba(10, 10, 15, 0.8)',
-              padding: '25px',
-              borderRadius: '50%',
-              border: '1.5px solid var(--accent-gold)',
+            animate={{ 
+              scale: [1, 1.05, 1],
+              filter: ['drop-shadow(0 0 10px rgba(251, 191, 36, 0.2))', 'drop-shadow(0 0 25px rgba(251, 191, 36, 0.5))', 'drop-shadow(0 0 10px rgba(251, 191, 36, 0.2))']
             }}
+            transition={{ duration: 4, repeat: Infinity }}
           >
-            <Crown size={40} className="gradient-gold" strokeWidth={1} />
+            <img 
+              src="/icon.png" 
+              alt="AstroRaga Icon" 
+              style={{ 
+                width: '120px', 
+                height: '120px', 
+                borderRadius: '30px',
+                border: '1px solid rgba(251, 191, 36, 0.3)',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+              }} 
+            />
           </motion.div>
         </div>
         
@@ -83,12 +90,37 @@ export default function Home() {
             padding: '24px 70px', 
             fontSize: '1.2rem', 
             borderRadius: '50px',
-            margin: '20px 0',
+            margin: '20px 0 10px 0',
             boxShadow: '0 15px 45px rgba(0,0,0,0.6)'
           }}
         >
           {t.enter}
         </motion.button>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          style={{
+            fontSize: '0.65rem',
+            color: 'var(--accent-gold)',
+            background: 'rgba(251, 191, 36, 0.1)',
+            padding: '4px 12px',
+            borderRadius: '12px',
+            border: '1px solid rgba(251, 191, 36, 0.2)',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            fontWeight: 700,
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <Sparkles size={10} />
+          No Ads • No Fees • Only Free
+          <Sparkles size={10} />
+        </motion.div>
 
         <OrnamentalDivider />
       </motion.div>
@@ -132,8 +164,26 @@ export default function Home() {
         transition={{ delay: 1.2 }}
         style={{ position: 'absolute', bottom: '24px', fontSize: '0.65rem', letterSpacing: '0.15em', color: 'var(--accent-gold)', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '4px' }}
       >
-        <span>ESTABLISHED IN THE COSMOS</span>
-        <span style={{ fontWeight: 700 }}>BY NISC_01</span>
+        <div style={{
+          fontSize: '0.7rem',
+          color: 'rgba(255, 255, 255, 0.7)',
+          background: 'rgba(251, 191, 36, 0.05)',
+          padding: '8px 14px',
+          borderRadius: '10px',
+          border: '1px solid rgba(251, 191, 36, 0.15)',
+          maxWidth: '300px',
+          display: 'flex',
+          gap: '10px',
+          alignItems: 'center',
+          marginBottom: '10px',
+          lineHeight: '1.5',
+          textAlign: 'left'
+        }}>
+          <ShieldCheck size={16} style={{ flexShrink: 0, color: 'var(--accent-gold)' }} />
+          <span>For entertainment purposes only. The universe guides, but your choices shape your destiny.</span>
+        </div>
+        <span>AstroRaga</span>
+        <span style={{ fontWeight: 700, textTransform: 'uppercase' }}>BY nisc07</span>
       </motion.div>
     </div>
   );
