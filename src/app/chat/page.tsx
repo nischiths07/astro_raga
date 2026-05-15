@@ -119,7 +119,21 @@ export default function ChatPage() {
                 {msg.role === 'user' ? <User size={10} /> : <Bot size={10} />}
                 <span>{msg.role === 'user' ? 'Seeker' : 'AstroSage'}</span>
               </div>
-              <p style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>{msg.content}</p>
+              <div style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>
+                {msg.content.split('\n').map((line, lineIdx) => {
+                  const parts = line.split(/(\*\*.*?\*\*)/g);
+                  return (
+                    <p key={lineIdx} style={{ marginBottom: lineIdx < msg.content.split('\n').length - 1 ? '10px' : 0 }}>
+                      {parts.map((part, partIdx) => {
+                        if (part.startsWith('**') && part.endsWith('**')) {
+                          return <strong key={partIdx} style={{ color: msg.role === 'user' ? 'inherit' : 'var(--accent-gold)' }}>{part.slice(2, -2)}</strong>;
+                        }
+                        return part;
+                      })}
+                    </p>
+                  );
+                })}
+              </div>
             </motion.div>
           ))}
           {loading && (

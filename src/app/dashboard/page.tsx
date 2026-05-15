@@ -198,15 +198,19 @@ export default function Dashboard() {
                 color: 'rgba(255, 255, 255, 0.9)',
                 fontFamily: 'var(--font-body)'
               }}>
-                {prediction.split('\n').map((line, i) => (
-                  <p key={i} style={{ marginBottom: line.startsWith('#') || line.includes('**') ? '24px' : '16px' }}>
-                    {line.includes('**') ? (
-                      <span className="gradient-gold royal-title" style={{ display: 'block', fontSize: '1.1rem', marginTop: i > 0 ? '12px' : '0' }}>
-                        {line.replace(/\*\*/g, '').replace(/#/g, '')}
-                      </span>
-                    ) : line}
-                  </p>
-                ))}
+                {prediction.split('\n').map((line, i) => {
+                  const parts = line.split(/(\*\*.*?\*\*)/g);
+                  return (
+                    <p key={i} style={{ marginBottom: '16px' }}>
+                      {parts.map((part, j) => {
+                        if (part.startsWith('**') && part.endsWith('**')) {
+                          return <strong key={j} style={{ color: 'var(--accent-gold)' }}>{part.slice(2, -2)}</strong>;
+                        }
+                        return part;
+                      })}
+                    </p>
+                  );
+                })}
               </div>
             </div>
 
