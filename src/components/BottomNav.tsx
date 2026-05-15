@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { Home, User, MessageSquare } from 'lucide-react';
+import { Home, User, MessageSquare, Info } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from './LanguageContext';
 
@@ -14,6 +14,7 @@ export default function BottomNav() {
     { icon: Home, label: t.dashboard, path: '/dashboard' },
     { icon: MessageSquare, label: 'AstroSage', path: '/chat' },
     { icon: User, label: t.profileTitle, path: '/profile' },
+    { icon: Info, label: 'About', path: '/about' },
   ];
 
   return (
