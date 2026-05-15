@@ -36,7 +36,7 @@ export default function AboutPage() {
             <span style={{ fontSize: '0.8rem', fontWeight: 800, letterSpacing: '0.1em', color: 'var(--accent-gold)' }}>DEVELOPMENT NOTICE</span>
           </div>
           <p style={{ fontSize: '0.95rem', lineHeight: '1.6', color: 'var(--text-main)', fontStyle: 'italic' }}>
-            AstroRaga is currently in its **Sacred Alpha Phase**. We are constantly refining our celestial algorithms. This journey is under active development and not yet complete.
+            AstroRaga is currently in its <strong style={{ color: 'var(--accent-gold)' }}>Sacred Alpha Phase</strong>. We are constantly refining our celestial algorithms. This journey is under active development and not yet complete.
           </p>
         </div>
 
