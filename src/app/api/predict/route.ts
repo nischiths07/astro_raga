@@ -128,6 +128,20 @@ export async function POST(req: Request) {
     // Save to database if user exists
     if (body.id) {
       try {
+        await prisma.user.upsert({
+          where: { id: body.id },
+          update: {},
+          create: {
+            id: body.id,
+            name: name || 'Seeker',
+            rashi: rashi || 'Mesha',
+            nakshatra: nakshatra || 'Ashwini',
+            pada: pada || '1',
+            birthDate: birthDate || '',
+            birthTime: birthTime || '',
+          },
+        });
+
         await prisma.message.create({
           data: {
             userId: body.id,

@@ -104,6 +104,21 @@ export async function POST(req: Request) {
     // Save to database if profile has an ID
     if (profile?.id) {
       try {
+        // Ensure user exists in database to prevent foreign key constraints
+        await prisma.user.upsert({
+          where: { id: profile.id },
+          update: {},
+          create: {
+            id: profile.id,
+            name: profile.name || 'Seeker',
+            rashi: profile.rashi || 'Mesha',
+            nakshatra: profile.nakshatra || 'Ashwini',
+            pada: profile.pada || '1',
+            birthDate: profile.birthDate || '',
+            birthTime: profile.birthTime || '',
+          },
+        });
+
         const lastUserMessage = messages[messages.length - 1].content;
         await prisma.message.createMany({
           data: [
