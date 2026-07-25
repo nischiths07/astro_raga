@@ -11,16 +11,16 @@ export default function BottomNav() {
   const { t } = useLanguage();
 
   const navItems = [
-    { icon: Home, label: t.dashboard, path: '/dashboard' },
-    { icon: MessageSquare, label: 'AstroSage', path: '/chat' },
-    { icon: User, label: t.profileTitle, path: '/profile' },
-    { icon: Info, label: 'About', path: '/about' },
+    { icon: Home, label: t.dashboard, path: '/?fromNav=true', activePaths: ['/', '/dashboard'] },
+    { icon: MessageSquare, label: 'AstroSage', path: '/chat', activePaths: ['/chat'] },
+    { icon: User, label: t.profileTitle, path: '/profile', activePaths: ['/profile'] },
+    { icon: Info, label: 'About', path: '/about', activePaths: ['/about'] },
   ];
 
   return (
     <nav className="nav-bottom">
       {navItems.map((item) => {
-        const isActive = pathname === item.path;
+        const isActive = item.activePaths.includes(pathname);
         const Icon = item.icon;
 
         return (

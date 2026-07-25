@@ -4,12 +4,18 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'AstroRaga',
     short_name: 'AstroRaga',
-    description: 'Guided by the stars',
+    description: 'Royal Vedic AI Astrology Sanctuary',
     start_url: '/',
     display: 'standalone',
     background_color: '#05070a',
     theme_color: '#05070a',
     icons: [
+      {
+        src: '/icon.png',
+        sizes: '512x512',
+        type: 'image/png',
+        purpose: 'maskable',
+      },
       {
         src: '/icon.svg',
         sizes: 'any',

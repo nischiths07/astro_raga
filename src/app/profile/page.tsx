@@ -44,7 +44,6 @@ export default function Profile() {
       const data = await response.json();
 
       if (data.success) {
-        // Save the profile along with the new database ID
         localStorage.setItem('astroraga_profile', JSON.stringify({ ...formData, id: data.user.id }));
         router.push('/dashboard');
       } else {
@@ -63,7 +62,7 @@ export default function Profile() {
       <header style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px', paddingTop: '12px' }}>
         <motion.button 
           whileHover={{ x: -4 }}
-          onClick={() => router.push('/')} 
+          onClick={() => router.push('/?fromNav=true')} 
           style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
         >
           <ArrowLeft size={24} />

@@ -10,6 +10,7 @@ import BottomNav from '@/components/BottomNav';
 export default function Dashboard() {
   const [profile, setProfile] = useState<any>(null);
   const [prediction, setPrediction] = useState<string>("");
+  const [remedy, setRemedy] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [flipped, setFlipped] = useState(false);
   const router = useRouter();
@@ -31,15 +32,21 @@ export default function Dashboard() {
     setLoading(true);
     setFlipped(false);
     try {
+      const userApiKey = localStorage.getItem('astroraga_api_key') || "";
       const res = await fetch('/api/predict', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-api-key': userApiKey
+        },
         body: JSON.stringify({ ...profileData, language }),
       });
       const data = await res.json();
       setPrediction(data.prediction);
+      setRemedy(data.remedy || "");
     } catch (err) {
       setPrediction("The stars are clouded today. Please try again later.");
+      setRemedy("");
     } finally {
       setLoading(false);
     }
@@ -55,9 +62,9 @@ export default function Dashboard() {
   return (
     <div className="container-full">
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', paddingTop: '12px' }}>
-        <div onClick={() => router.push('/')} style={{ cursor: 'pointer' }}>
+        <div onClick={() => router.push('/?fromNav=true')} style={{ cursor: 'pointer' }}>
           <h2 className="gradient-gold royal-title" style={{ fontSize: '1.6rem', marginBottom: '4px' }}>{t.dashboard}</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Seeker: {profile.name}</p>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Seeker: {profile.name || 'Seeker'}</p>
         </div>
         <motion.button 
           whileHover={{ scale: 1.1, rotate: 10 }}
@@ -177,7 +184,7 @@ export default function Dashboard() {
                         fontWeight: 500,
                         textAlign: 'center'
                       }}>
-                        {prediction.split('Divine Remedy').pop()?.replace(/[*#]/g, '').trim() || "Embrace silence for 11 minutes at sunset."}
+                        {remedy || "Embrace silence for 11 minutes at sunset."}
                       </p>
                     </div>
                   </div>

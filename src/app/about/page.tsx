@@ -1,11 +1,59 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Globe, TrendingUp, Users, Sparkles, Heart } from 'lucide-react';
+import { ArrowLeft, Globe, TrendingUp, Users, Sparkles, Heart, Mail, Send, Check, Copy, MessageSquare } from 'lucide-react';
 
 export default function AboutPage() {
   const router = useRouter();
+  const [feedback, setFeedback] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const targetEmail = 'snischith07@gmail.com';
+
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText(targetEmail);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleSendFeedback = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!feedback.trim() || loading) return;
+
+    setLoading(true);
+
+    try {
+      // 1. Post feedback to Next.js API (saves to SQLite DB and sends Web3Forms email)
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: userEmail, message: feedback })
+      });
+
+      // 2. Open Gmail Web pre-filled in a new tab for convenience
+      const subject = encodeURIComponent('AstroRaga Suggestion & Feedback');
+      const body = encodeURIComponent(
+        `Feedback from AstroRaga:\n\n${feedback}\n\n` + 
+        (userEmail ? `User Email: ${userEmail}` : 'Sent via AstroRaga App')
+      );
+      
+      const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${targetEmail}&su=${subject}&body=${body}`;
+      window.open(gmailUrl, '_blank');
+
+      setSubmitted(true);
+      setFeedback('');
+      setUserEmail('');
+    } catch (err) {
+      console.error('Failed to submit feedback:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container-full" style={{ paddingBottom: '100px' }}>
@@ -80,6 +128,153 @@ export default function AboutPage() {
           </div>
         </div>
 
+        {/* Feedback & Suggestion Box */}
+        <section className="glass-panel" style={{ 
+          marginBottom: '40px', 
+          border: '1px solid rgba(251, 191, 36, 0.3)',
+          background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+            <div style={{ background: 'rgba(251, 191, 36, 0.15)', padding: '10px', borderRadius: '12px', color: 'var(--accent-gold)' }}>
+              <MessageSquare size={22} />
+            </div>
+            <div>
+              <h3 className="royal-title gradient-gold" style={{ fontSize: '1.2rem', margin: 0 }}>Feedback & Suggestions</h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                Help us shape the future of AstroRaga
+              </p>
+            </div>
+          </div>
+
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: '1.5', marginBottom: '20px' }}>
+            Have ideas, feature suggestions, or feedback? Send directly to <strong style={{ color: 'var(--accent-gold)' }}>{targetEmail}</strong> below.
+          </p>
+
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(251, 191, 36, 0.2)',
+            borderRadius: '12px',
+            padding: '10px 16px',
+            marginBottom: '20px',
+            flexWrap: 'wrap',
+            gap: '10px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-gold)', fontSize: '0.85rem', fontWeight: 600 }}>
+              <Mail size={16} />
+              <span>{targetEmail}</span>
+            </div>
+            <button
+              onClick={handleCopyEmail}
+              style={{
+                background: 'rgba(251, 191, 36, 0.1)',
+                border: '1px solid rgba(251, 191, 36, 0.3)',
+                borderRadius: '8px',
+                padding: '6px 12px',
+                color: 'var(--accent-gold)',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontWeight: 600
+              }}
+            >
+              {copied ? <Check size={14} /> : <Copy size={14} />}
+              {copied ? 'Copied!' : 'Copy Email'}
+            </button>
+          </div>
+
+          {submitted ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              style={{
+                background: 'rgba(16, 185, 129, 0.15)',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                borderRadius: '14px',
+                padding: '20px',
+                textAlign: 'center',
+                color: '#6ee7b7'
+              }}
+            >
+              <div style={{ display: 'inline-flex', background: 'rgba(16, 185, 129, 0.2)', padding: '10px', borderRadius: '50%', marginBottom: '10px' }}>
+                <Check size={24} />
+              </div>
+              <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '6px' }}>Feedback Received!</h4>
+              <p style={{ fontSize: '0.82rem', opacity: 0.9, lineHeight: '1.5' }}>
+                Your suggestion was saved into our database and emailed to <strong>{targetEmail}</strong>!
+              </p>
+              <button
+                onClick={() => setSubmitted(false)}
+                style={{
+                  marginTop: '14px',
+                  background: 'none',
+                  border: '1px solid rgba(16, 185, 129, 0.4)',
+                  color: '#6ee7b7',
+                  padding: '6px 14px',
+                  borderRadius: '8px',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Send Another Suggestion
+              </button>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleSendFeedback} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div className="premium-input-group" style={{ marginBottom: 0 }}>
+                <label className="premium-label" style={{ fontSize: '0.75rem' }}>Your Email (Optional)</label>
+                <input
+                  type="email"
+                  className="premium-input"
+                  placeholder="name@example.com"
+                  value={userEmail}
+                  onChange={(e) => setUserEmail(e.target.value)}
+                  style={{ fontSize: '0.85rem', padding: '10px 14px' }}
+                />
+              </div>
+
+              <div className="premium-input-group" style={{ marginBottom: 0 }}>
+                <label className="premium-label" style={{ fontSize: '0.75rem' }}>Suggestion / Feedback *</label>
+                <textarea
+                  required
+                  rows={4}
+                  className="premium-input"
+                  placeholder="Share your thoughts, suggestions, or feature requests..."
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  style={{ fontSize: '0.85rem', padding: '12px 14px', resize: 'vertical', minHeight: '90px' }}
+                />
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                className="action-button royal-title"
+                style={{
+                  width: '100%',
+                  padding: '12px 20px',
+                  fontSize: '0.9rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  marginTop: '6px'
+                }}
+              >
+                <Send size={16} />
+                Send Feedback to snischith07@gmail.com
+              </motion.button>
+            </form>
+          )}
+        </section>
+
         <div style={{ textAlign: 'center', padding: '40px 0', borderTop: '1px solid rgba(251, 191, 36, 0.1)' }}>
           <Heart size={32} className="text-gold" style={{ marginBottom: '20px', opacity: 0.5 }} />
           <p className="royal-title" style={{ fontSize: '1.1rem', color: 'var(--text-main)', marginBottom: '10px' }}>
@@ -97,3 +292,4 @@ export default function AboutPage() {
     </div>
   );
 }
+

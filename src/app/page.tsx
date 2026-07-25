@@ -11,6 +11,11 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const fromNav = params.get('fromNav');
+    if (fromNav === 'true') {
+      return;
+    }
     const profile = localStorage.getItem('astroraga_profile');
     if (profile) {
       router.push('/dashboard');
