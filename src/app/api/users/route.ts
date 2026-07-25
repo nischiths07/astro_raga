@@ -21,7 +21,8 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Error creating user profile in DB:', error?.message || error);
     return NextResponse.json({ 
-      success: true, 
+      success: false,
+      dbError: error?.message || String(error),
       user: { id: 'usr_' + Date.now(), name: name || 'Seeker' } 
     });
   }
