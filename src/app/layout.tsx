@@ -12,7 +12,6 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "AstroRaga",
   },
-  manifest: "/manifest.webmanifest",
 };
 
 export const viewport: Viewport = {
