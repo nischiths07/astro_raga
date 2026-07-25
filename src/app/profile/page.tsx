@@ -24,7 +24,11 @@ export default function Profile() {
   useEffect(() => {
     const savedProfile = localStorage.getItem('astroraga_profile');
     if (savedProfile) {
-      setFormData(JSON.parse(savedProfile));
+      try {
+        setFormData(JSON.parse(savedProfile));
+      } catch (e) {
+        localStorage.removeItem('astroraga_profile');
+      }
     }
   }, []);
 

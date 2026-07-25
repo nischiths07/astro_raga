@@ -22,10 +22,14 @@ export default function Dashboard() {
       router.push('/profile');
       return;
     }
-    const parsedProfile = JSON.parse(savedProfile);
-    setProfile(parsedProfile);
-    
-    fetchPrediction(parsedProfile);
+    try {
+      const parsedProfile = JSON.parse(savedProfile);
+      setProfile(parsedProfile);
+      fetchPrediction(parsedProfile);
+    } catch (e) {
+      localStorage.removeItem('astroraga_profile');
+      router.push('/profile');
+    }
   }, [router, language]);
 
   const fetchPrediction = async (profileData: any) => {

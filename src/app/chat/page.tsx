@@ -37,14 +37,19 @@ export default function ChatPage() {
   useEffect(() => {
     const savedProfile = localStorage.getItem('astroraga_profile');
     if (savedProfile) {
-      const parsed = JSON.parse(savedProfile);
-      setProfile(parsed);
-      setMessages([
-        { 
-          role: 'assistant', 
-          content: `Greetings, ${parsed.name || 'Seeker'}. I am AstroSage. The stars have much to tell us today. How may I guide you on your journey through the cosmos?` 
-        }
-      ]);
+      try {
+        const parsed = JSON.parse(savedProfile);
+        setProfile(parsed);
+        setMessages([
+          { 
+            role: 'assistant', 
+            content: `Greetings, ${parsed.name || 'Seeker'}. I am AstroSage. The stars have much to tell us today. How may I guide you on your journey through the cosmos?` 
+          }
+        ]);
+      } catch (e) {
+        localStorage.removeItem('astroraga_profile');
+        router.push('/profile');
+      }
     } else {
       router.push('/profile');
     }
