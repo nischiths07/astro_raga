@@ -18,6 +18,13 @@ export const translations = {
     back: "Back",
     dashboard: "Home",
     logout: "Reset",
+    streak: "Divine Streak",
+    karmaPoints: "Karma Merit",
+    completeRemedy: "Mark Ritual Completed",
+    remedyCompleted: "Ritual Completed Today",
+    streakSub: "Complete daily rituals to align your karma",
+    karmaLevel: "Spiritual Level",
+    daysCount: "Days",
     rashiList: [
       "Mesha", "Vrishabha", "Mithuna", "Karka", "Simha", "Kanya", "Tula", "Vrishchika", "Dhanu", "Makara", "Kumbha", "Meena"
     ],
@@ -44,6 +51,13 @@ export const translations = {
     back: "ಹಿಂದಕ್ಕೆ",
     dashboard: "ಮುಖಪುಟ",
     logout: "ಅಳಿಸಿ",
+    streak: "ದೈವಿಕ ಸರಣಿ",
+    karmaPoints: "ಕರ್ಮ ಪುಣ್ಯ",
+    completeRemedy: "ಪರಿಹಾರ ಪೂರ್ಣಗೊಳಿಸಿ",
+    remedyCompleted: "ಇಂದಿನ ಪರಿಹಾರ ಪೂರ್ಣಗೊಂಡಿದೆ",
+    streakSub: "ನಿಮ್ಮ ನಕ್ಷತ್ರ ಬಲ ಹೆಚ್ಚಿಸಲು ದಿನನಿತ್ಯದ ಪರಿಹಾರವನ್ನು ಮಾಡಿ",
+    karmaLevel: "ಆಧ್ಯಾತ್ಮಿಕ ಹಂತ",
+    daysCount: "ದಿನಗಳು",
     rashiList: [
       "ಮೇಷ", "ವೃಷಭ", "ಮಿಥುನ", "ಕರ್ಕ", "ಸಿಂಹ", "ಕನ್ಯಾ", "ತುಲಾ", "ವೃಶ್ಚಿಕ", "ಧನುಸ್ಸು", "ಮಕರ", "ಕುಂಭ", "ಮೀನ"
     ],

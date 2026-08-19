@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguage } from '@/components/LanguageContext';
 import { RefreshCw, Star, Sparkles, LogOut, ChevronRight, ShieldCheck } from 'lucide-react';
+import KarmaStreakTracker from '@/components/KarmaStreakTracker';
 
 export default function Dashboard() {
   const [profile, setProfile] = useState<any>(null);
@@ -195,6 +196,9 @@ export default function Dashboard() {
                 </div>
               </motion.div>
             </div>
+
+            {/* Daily Karma Remedy Streak & Cosmic Anchors */}
+            <KarmaStreakTracker rashi={profile.rashi} nakshatra={profile.nakshatra} />
 
             <div className="section-title">
               <Star size={12} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'middle' }} />
