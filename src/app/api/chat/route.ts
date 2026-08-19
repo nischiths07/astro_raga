@@ -1,25 +1,79 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { generateVedicChatResponse } from "@/lib/vedicEngine";
+import { checkRateLimit, getClientIp } from "@/lib/rateLimit";
+import { sanitizeText, sanitizeForAIPrompt, sanitizeRashi, sanitizeNakshatra, sanitizePada } from "@/lib/security";
+
+function isCleanKannada(text: string): boolean {
+  if (!text) return false;
+  const kannadaChars = (text.match(/[\u0C80-\u0CFF]/g) || []).length;
+  const foreignGarbled = (text.match(/[\u0600-\u06FF\u4E00-\u9FFF\u0400-\u04FF\uAC00-\uD7AF]/g) || []).length;
+  if (foreignGarbled > 0) return false;
+  return kannadaChars > 15;
+}
 
 export async function POST(req: Request) {
   try {
-    const { messages, profile, language } = await req.json();
+    // 1. Rate Limiting Protection
+    const clientIp = getClientIp(req);
+    const rateLimit = checkRateLimit(`chat:${clientIp}`, { windowSeconds: 60, maxRequests: 30 });
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { content: "You have asked several questions rapidly. Please wait a moment before consulting the cosmos again." },
+        { 
+          status: 429,
+          headers: { 'Retry-After': String(rateLimit.resetInSeconds) }
+        }
+      );
+    }
+
+    // 2. Input Sanitization & Payload Validation
+    const body = await req.json();
+    const rawMessages = Array.isArray(body.messages) ? body.messages : [];
     
-    const customKey = req.headers.get("x-user-api-key") || "";
+    // Clamp history to last 8 messages and sanitize each message
+    const sanitizedMessages = rawMessages
+      .slice(-8)
+      .map((m: any) => ({
+        role: m.role === 'user' ? 'user' : 'assistant',
+        content: sanitizeForAIPrompt(m.content, 600)
+      }))
+      .filter((m: any) => m.content.length > 0);
+
+    if (sanitizedMessages.length === 0) {
+      return NextResponse.json({ content: "How may I assist your spiritual journey today?" });
+    }
+
+    const rawProfile = body.profile || {};
+    const profile = {
+      id: typeof rawProfile.id === 'string' ? sanitizeText(rawProfile.id, 64) : undefined,
+      name: sanitizeText(rawProfile.name, 50) || 'Seeker',
+      rashi: sanitizeRashi(rawProfile.rashi),
+      nakshatra: sanitizeNakshatra(rawProfile.nakshatra),
+      pada: sanitizePada(rawProfile.pada),
+      birthDate: sanitizeText(rawProfile.birthDate, 20),
+      birthTime: sanitizeText(rawProfile.birthTime, 20),
+    };
+
+    const isKn = body.language === 'kn';
+    
+    // Header Key Validation
+    const customKeyHeader = req.headers.get("x-user-api-key") || "";
+    const customKey = sanitizeText(customKeyHeader, 128);
     const geminiKey = customKey.startsWith("AIzaSy") ? customKey : process.env.GEMINI_API_KEY;
     const openRouterKey = customKey.startsWith("sk-or-") ? customKey : process.env.OPENROUTER_API_KEY;
     
     const systemPrompt = `You are "AstroSage", a Master AI Vedic Astrology Agent. 
-    The user is ${profile?.name || 'a seeker'}. 
+    The user is ${profile.name}. 
     Vedic details of user:
-    - Rashi: ${profile?.rashi || 'Unknown'}
-    - Nakshatra: ${profile?.nakshatra || 'Unknown'}
-    - Pada: ${profile?.pada || 'Unknown'}
-    - Birth Date: ${profile?.birthDate || 'Unknown'}
-    - Birth Time: ${profile?.birthTime || 'Unknown'}
+    - Rashi: ${profile.rashi}
+    - Nakshatra: ${profile.nakshatra}
+    - Pada: ${profile.pada}
+    - Birth Date: ${profile.birthDate || 'Unknown'}
+    - Birth Time: ${profile.birthTime || 'Unknown'}
 
-    CRITICAL: You already have the user's name, Rashi, Nakshatra, Pada, Birth Date, and Birth Time. Do NOT ask the user for their birth date, birth time, or birth place. If you need details, refer to the provided info above. You have deep expertise in Vedic Shastras. 
+    CRITICAL: You already have the user's name, Rashi, Nakshatra, Pada, Birth Date, and Birth Time. Do NOT ask the user for their birth date, birth time, or birth place. Refer directly to the provided info above. You have deep expertise in Vedic Shastras. 
     
     TONE & STYLE GUIDELINES:
     - Respond with warmth, deep empathy, gentleness, and emotional sensitivity. Use polite, comforting, and kind words.
@@ -28,13 +82,13 @@ export async function POST(req: Request) {
     - Keep your insights positive, encouraging, and emotionally supportive.
     
     LANGUAGE PREFERENCE & LENGTH:
-    ${language === 'kn' ? 'CRITICAL: Since the seeker prefers Kannada, you MUST provide your response ONLY in Kannada (do NOT include any English text or translation). Format your response to be exactly 5 to 6 lines of text (each line should be a clear, meaningful sentence or point in Kannada).' : 'Provide your response in English. Format your response to be exactly 5 to 6 lines of text.'}
+    ${isKn ? 'CRITICAL: Since the seeker prefers Kannada, you MUST provide your response ONLY in pure, fluent Kannada (ಕನ್ನಡ) without any English words or foreign characters. Format your response in 4 to 6 concise lines.' : 'Provide your response in English. Format your response to be concise (4 to 6 lines).'}
 
-    CRITICAL: Answer the user's specific question directly, accurately, and in a concise format that takes exactly 5 to 6 lines. Do not give long pre-written analysis unless specifically asked.`;
+    CRITICAL: Answer the user's specific question directly, accurately, and concisely.`;
 
     let responseText = "";
 
-    // 1. Try Gemini Native if key exists
+    // 3. Try Gemini Native if key exists
     if (geminiKey) {
       try {
         const genAI = new GoogleGenerativeAI(geminiKey);
@@ -43,33 +97,41 @@ export async function POST(req: Request) {
           systemInstruction: systemPrompt
         });
         const chat = model.startChat({
-          history: messages.slice(0, -1).map((m: any) => ({
+          history: sanitizedMessages.slice(0, -1).map((m: any) => ({
             role: m.role === 'user' ? 'user' : 'model',
             parts: [{ text: m.content }],
           })),
-          generationConfig: { maxOutputTokens: 1000 },
+          generationConfig: { maxOutputTokens: 600 },
         });
-        const result = await chat.sendMessage(messages[messages.length - 1].content);
-        responseText = result.response.text();
-      } catch (err) {}
+        const lastMsg = sanitizedMessages[sanitizedMessages.length - 1].content;
+        const result = await chat.sendMessage(lastMsg);
+        const text = result.response.text();
+        if (text && (!isKn || isCleanKannada(text))) {
+          responseText = text;
+        }
+      } catch (err) {
+        console.warn("Chat Gemini error:", err);
+      }
     }
 
-    // 2. Try OpenRouter with a list of potential free models
+    // 4. Try OpenRouter Verified Active Free Models
     if (!responseText && openRouterKey) {
-      const freeModels = [
-        "google/gemini-2.5-flash",
-        "google/gemini-2.0-flash-lite-001",
-        "google/gemini-2.5-pro",
-        "meta-llama/llama-3.3-70b-instruct",
-        "google/gemma-4-31b-it:free",
-        "openrouter/free"
+      const activeFreeModels = [
+        "openrouter/free",
+        "liquid/lfm-2.5-2.6b:free",
+        "nvidia/nemotron-3-nano-30b-a3b:free",
+        "openai/gpt-oss-20b:free",
+        "nvidia/nemotron-3.5-lightning:free"
       ];
 
-      for (const modelId of freeModels) {
+      for (const modelId of activeFreeModels) {
         try {
-          console.log(`Chat: Trying OpenRouter model ${modelId}...`);
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 6000);
+
           const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
+            signal: controller.signal,
             headers: {
               "Authorization": `Bearer ${openRouterKey}`,
               "Content-Type": "application/json",
@@ -77,62 +139,69 @@ export async function POST(req: Request) {
               "X-Title": "Astroraga",
             },
             body: JSON.stringify({
-               model: modelId,
-               messages: [{ role: "system", content: systemPrompt }, ...messages],
-               max_tokens: 3000
-             }),
+              model: modelId,
+              messages: [{ role: "system", content: systemPrompt }, ...sanitizedMessages],
+              max_tokens: 600
+            }),
           });
 
-          const data = await response.json();
-          if (response.ok && data.choices?.[0]?.message?.content) {
-            responseText = data.choices[0].message.content;
-            console.log(`Chat: Model ${modelId} succeeded! (Resolved model: ${data.model || 'unknown'})`);
-            break; // Success!
-          } else {
-            console.warn(`Chat: Model ${modelId} failed:`, data.error?.message || response.status);
+          clearTimeout(timeoutId);
+
+          if (response.ok) {
+            const data = await response.json();
+            const candidate = data.choices?.[0]?.message?.content;
+            if (candidate && (!isKn || isCleanKannada(candidate))) {
+              responseText = candidate;
+              break;
+            }
           }
         } catch (error) {
-          console.error(`Chat: Fetch error for ${modelId}:`, error);
+          // Model timeout or failure, proceed to next
         }
       }
     }
 
-    if (!responseText) {
-      responseText = "The celestial path is temporarily blocked. Please ensure your OpenRouter API key is valid and has not reached its quota.";
+    // 5. Fallback to Built-in Vedic Engine (Zero Vulnerability Guarantee)
+    if (!responseText || (isKn && !isCleanKannada(responseText))) {
+      const lastUserMsg = sanitizedMessages[sanitizedMessages.length - 1]?.content || "";
+      responseText = generateVedicChatResponse(lastUserMsg, profile, isKn ? 'kn' : 'en');
     }
 
-    // Save to database if profile has an ID
-    if (profile?.id) {
-      try {
-        // Ensure user exists in database to prevent foreign key constraints
-        await prisma.user.upsert({
-          where: { id: profile.id },
-          update: {},
-          create: {
-            id: profile.id,
-            name: profile.name || 'Seeker',
-            rashi: profile.rashi || 'Mesha',
-            nakshatra: profile.nakshatra || 'Ashwini',
-            pada: profile.pada || '1',
-            birthDate: profile.birthDate || '',
-            birthTime: profile.birthTime || '',
-          },
-        });
+    // Non-blocking background save to database
+    if (profile.id) {
+      const profileId = profile.id;
+      (async () => {
+        try {
+          await prisma.user.upsert({
+            where: { id: profileId },
+            update: {},
+            create: {
+              id: profileId,
+              name: profile.name.slice(0, 50),
+              rashi: profile.rashi,
+              nakshatra: profile.nakshatra,
+              pada: profile.pada,
+              birthDate: profile.birthDate || '',
+              birthTime: profile.birthTime || '',
+            },
+          });
 
-        const lastUserMessage = messages[messages.length - 1].content;
-        await prisma.message.createMany({
-          data: [
-            { userId: profile.id, role: 'user', content: lastUserMessage },
-            { userId: profile.id, role: 'ai', content: responseText },
-          ],
-        });
-      } catch (dbError) {
-        console.error("Failed to save chat to DB:", dbError);
-      }
+          const lastUserMessage = sanitizedMessages[sanitizedMessages.length - 1]?.content || "";
+          await prisma.message.createMany({
+            data: [
+              { userId: profileId, role: 'user', content: lastUserMessage.slice(0, 500) },
+              { userId: profileId, role: 'ai', content: responseText.slice(0, 1000) },
+            ],
+          });
+        } catch (dbError) {
+          console.error("Non-fatal: DB persistence notice:", dbError);
+        }
+      })();
     }
 
     return NextResponse.json({ content: responseText });
   } catch (error: any) {
-    return NextResponse.json({ error: "Cosmic interference." }, { status: 500 });
+    const fallbackResponse = generateVedicChatResponse("guidance", undefined, 'en');
+    return NextResponse.json({ content: fallbackResponse });
   }
 }

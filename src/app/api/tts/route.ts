@@ -1,22 +1,42 @@
 import { NextResponse } from 'next/server';
+import { checkRateLimit, getClientIp } from '@/lib/rateLimit';
+import { sanitizeText } from '@/lib/security';
+
+const ALLOWED_LANGUAGES = new Set(['kn', 'en', 'hi', 'kn-in', 'en-in', 'en-us', 'en-gb']);
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const text = searchParams.get('text') || '';
-    const lang = searchParams.get('lang') || 'kn';
+    // 1. Rate Limiting Protection (Anti-Proxy Abuse)
+    const clientIp = getClientIp(request);
+    const rateLimit = checkRateLimit(`tts:${clientIp}`, { windowSeconds: 60, maxRequests: 60 });
+    if (!rateLimit.allowed) {
+      return new NextResponse('Too many audio requests. Please wait a moment.', { 
+        status: 429,
+        headers: { 'Retry-After': String(rateLimit.resetInSeconds) }
+      });
+    }
 
-    if (!text) {
+    const { searchParams } = new URL(request.url);
+    const rawText = searchParams.get('text') || '';
+    const rawLang = searchParams.get('lang') || 'kn';
+
+    if (!rawText || !rawText.trim()) {
       return new NextResponse('Text parameter is required', { status: 400 });
     }
 
-    // Limit text to 200 characters per request for safety
-    const cleanText = text.substring(0, 200);
+    // 2. Strict Parameter Validation
+    const langNormalized = rawLang.trim().toLowerCase();
+    const lang = ALLOWED_LANGUAGES.has(langNormalized) ? langNormalized : 'kn';
+    const cleanText = sanitizeText(rawText, 150);
+
+    if (!cleanText) {
+      return new NextResponse('Invalid text input', { status: 400 });
+    }
     
     // Multiple client endpoints for robustness
     const urls = [
-      `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=gtx&q=${encodeURIComponent(cleanText)}`,
-      `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lang}&client=tw-ob&q=${encodeURIComponent(cleanText)}`
+      `https://translate.google.com/translate_tts?ie=UTF-8&tl=${encodeURIComponent(lang)}&client=gtx&q=${encodeURIComponent(cleanText)}`,
+      `https://translate.google.com/translate_tts?ie=UTF-8&tl=${encodeURIComponent(lang)}&client=tw-ob&q=${encodeURIComponent(cleanText)}`
     ];
 
     let lastStatus = 500;
@@ -36,19 +56,19 @@ export async function GET(request: Request) {
           return new NextResponse(data, {
             headers: {
               'Content-Type': 'audio/mpeg',
-              'Cache-Control': 'public, max-age=86400, s-maxage=86400'
+              'Cache-Control': 'public, max-age=86400, s-maxage=86400',
+              'X-Content-Type-Options': 'nosniff'
             }
           });
         }
         lastStatus = response.status;
       } catch (e) {
-        console.error('TTS endpoint fetch error:', e);
+        // Try fallback endpoint
       }
     }
 
-    return new NextResponse('Error fetching TTS from downstream source', { status: lastStatus });
+    return new NextResponse('Audio synthesis unavailable', { status: lastStatus });
   } catch (error) {
-    console.error('TTS API error:', error);
     return new NextResponse('Internal server error', { status: 500 });
   }
 }

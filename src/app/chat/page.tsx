@@ -268,9 +268,9 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="container-full" style={{ 
-      padding: 0, 
-      height: '100dvh', 
+    <div className="page-content-wrapper" style={{ 
+      padding: '20px 16px 80px 16px', 
+      height: '100%', 
       overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column'

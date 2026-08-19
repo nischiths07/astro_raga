@@ -64,7 +64,7 @@ export default function Dashboard() {
   if (!profile) return null;
 
   return (
-    <div className="container-full">
+    <div className="page-content-wrapper">
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', paddingTop: '12px' }}>
         <div onClick={() => router.push('/?fromNav=true')} style={{ cursor: 'pointer' }}>
           <h2 className="gradient-gold royal-title" style={{ fontSize: '1.6rem', marginBottom: '4px' }}>{t.dashboard}</h2>

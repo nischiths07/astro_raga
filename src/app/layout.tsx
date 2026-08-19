@@ -32,10 +32,12 @@ export default function RootLayout({
       <body suppressHydrationWarning>
         <LanguageProvider>
           <StarsBackground />
-          <main className="container-full">
-            <LanguageToggle />
-            {children}
-          </main>
+          <div className="viewport-center-wrapper">
+            <main className="app-card-boundary">
+              <LanguageToggle />
+              {children}
+            </main>
+          </div>
         </LanguageProvider>
       </body>
     </html>

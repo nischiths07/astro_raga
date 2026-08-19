@@ -62,7 +62,7 @@ export default function Profile() {
   };
 
   return (
-    <div className="container-full">
+    <div className="page-content-wrapper">
       <header style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px', paddingTop: '12px' }}>
         <motion.button 
           whileHover={{ x: -4 }}
