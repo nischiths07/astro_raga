@@ -63,6 +63,7 @@ body {
   max-width: 440px;
   min-height: min(840px, 94vh);
   height: 100%;
+  max-height: 94vh;
   background: rgba(10, 10, 16, 0.88);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
@@ -91,10 +92,12 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 28px 20px 100px 20px;
+  padding: 28px 20px calc(105px + env(safe-area-inset-bottom, 16px)) 20px;
   position: relative;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(251, 191, 36, 0.2) transparent;
 }
 
 /* Enhanced Background Elements */
@@ -275,42 +278,44 @@ h1, h2, h3, h4 {
 /* Navigation */
 .nav-bottom {
   position: absolute;
-  bottom: max(16px, env(safe-area-inset-bottom, 16px));
+  bottom: max(14px, env(safe-area-inset-bottom, 14px));
   left: 50%;
   transform: translateX(-50%);
   width: calc(100% - 32px);
   max-width: 400px;
-  background: rgba(10, 10, 16, 0.88);
+  background: rgba(12, 12, 20, 0.94);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   border: 1px solid var(--glass-border);
   border-radius: 24px;
-  padding: 8px;
+  padding: 6px 8px;
   display: flex;
   justify-content: space-around;
   z-index: 1000;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(251, 191, 36, 0.12);
+  pointer-events: auto;
 }
 
 .nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 3px;
   color: var(--text-muted);
   font-size: 0.65rem;
   font-weight: 700;
-  transition: all 0.3s ease;
-  padding: 10px 14px;
+  transition: all 0.25s ease;
+  padding: 8px 12px;
   border-radius: 16px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   touch-action: manipulation;
+  min-height: 44px;
 }
 
 .nav-item.active {
   color: var(--accent-gold);
-  background: rgba(251, 191, 36, 0.1);
 }
 
 /* Legacy fallback container */
@@ -375,6 +380,7 @@ h1, h2, h3, h4 {
     width: 100%;
     min-height: 100dvh;
     height: 100dvh;
+    max-height: 100dvh;
     border-radius: 0;
     border: none;
     box-shadow: none;
@@ -382,7 +388,7 @@ h1, h2, h3, h4 {
   }
   
   .page-content-wrapper {
-    padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(96px + env(safe-area-inset-bottom, 0px)) 16px;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(115px + env(safe-area-inset-bottom, 15px)) 16px;
   }
   
   .nav-bottom {
@@ -393,7 +399,7 @@ h1, h2, h3, h4 {
   }
   
   .nav-item {
-    padding: 8px 10px;
+    padding: 8px 8px;
     font-size: 0.6rem;
   }
 

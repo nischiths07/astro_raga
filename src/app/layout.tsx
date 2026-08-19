@@ -3,6 +3,7 @@ import "./globals.css";
 import StarsBackground from "@/components/StarsBackground";
 import { LanguageProvider } from "@/components/LanguageContext";
 import LanguageToggle from "@/components/LanguageToggle";
+import BottomNav from "@/components/BottomNav";
 
 export const metadata: Metadata = {
   title: "AstroRaga | Guided by the Stars",
@@ -36,6 +37,7 @@ export default function RootLayout({
             <main className="app-card-boundary">
               <LanguageToggle />
               {children}
+              <BottomNav />
             </main>
           </div>
         </LanguageProvider>

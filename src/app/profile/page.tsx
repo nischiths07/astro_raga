@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/components/LanguageContext';
-import { ChevronRight, ArrowLeft, UserCircle, ShieldCheck } from 'lucide-react';
-import BottomNav from '@/components/BottomNav';
+import { ChevronRight, ArrowLeft, ShieldCheck } from 'lucide-react';
 
 export default function Profile() {
   const { t, language } = useLanguage();
@@ -63,11 +62,11 @@ export default function Profile() {
 
   return (
     <div className="page-content-wrapper">
-      <header style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px', paddingTop: '12px' }}>
+      <header style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '28px', paddingTop: '8px' }}>
         <motion.button 
           whileHover={{ x: -4 }}
           onClick={() => router.push('/?fromNav=true')} 
-          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
+          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
         >
           <ArrowLeft size={24} />
         </motion.button>
@@ -75,14 +74,14 @@ export default function Profile() {
       </header>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="spacer"
+        transition={{ duration: 0.5 }}
       >
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
           <div className="section-title">Essential Details</div>
           
-          <div className="glass-panel" style={{ marginBottom: '32px' }}>
+          <div className="glass-panel" style={{ marginBottom: '22px' }}>
             <div className="premium-input-group">
               <label className="premium-label">{t.nameLabel}</label>
               <input
@@ -95,7 +94,7 @@ export default function Profile() {
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
               <div className="premium-input-group">
                 <label className="premium-label">{t.rashiLabel}</label>
                 <select
@@ -123,7 +122,7 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="premium-input-group">
+            <div className="premium-input-group" style={{ marginBottom: 0 }}>
               <label className="premium-label">{t.padaLabel}</label>
               <select
                 className="premium-input"
@@ -138,8 +137,8 @@ export default function Profile() {
           </div>
 
           <div className="section-title">Birth Timing</div>
-          <div className="glass-panel" style={{ marginBottom: '40px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div className="glass-panel" style={{ marginBottom: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
               <div className="premium-input-group" style={{ marginBottom: 0 }}>
                 <label className="premium-label">{t.birthDateLabel}</label>
                 <input
@@ -170,7 +169,7 @@ export default function Profile() {
             type="submit"
             disabled={isSubmitting}
             className="action-button royal-title"
-            style={{ width: '100%', marginBottom: '40px', opacity: isSubmitting ? 0.7 : 1 }}
+            style={{ width: '100%', marginBottom: '24px', opacity: isSubmitting ? 0.7 : 1 }}
           >
             {t.saveProfile}
             <ChevronRight size={20} />
@@ -178,7 +177,7 @@ export default function Profile() {
         </form>
       </motion.div>
 
-      <div style={{ textAlign: 'center', opacity: 0.4, fontSize: '0.65rem', color: 'var(--accent-gold)', letterSpacing: '0.15em', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+      <div style={{ textAlign: 'center', opacity: 0.6, fontSize: '0.65rem', color: 'var(--accent-gold)', letterSpacing: '0.15em', marginBottom: '16px', display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
         <div style={{
           fontSize: '0.7rem',
           color: 'rgba(255, 255, 255, 0.7)',
@@ -190,7 +189,7 @@ export default function Profile() {
           display: 'flex',
           gap: '10px',
           alignItems: 'center',
-          marginBottom: '10px',
+          marginBottom: '8px',
           lineHeight: '1.5',
           letterSpacing: 'normal',
           textTransform: 'none',
@@ -202,8 +201,6 @@ export default function Profile() {
         <span>AstroRaga</span>
         <span style={{ fontWeight: 700, textTransform: 'uppercase' }}>BY nisc07</span>
       </div>
-
-      <BottomNav />
     </div>
   );
 }

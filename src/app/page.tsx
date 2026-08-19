@@ -40,7 +40,7 @@ export default function Home() {
         flexDirection: 'column', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        padding: 'clamp(20px, 4vh, 36px) clamp(16px, 4vw, 24px) clamp(16px, 3vh, 28px) clamp(16px, 4vw, 24px)',
+        padding: 'clamp(20px, 4vh, 36px) clamp(16px, 4vw, 24px) calc(88px + env(safe-area-inset-bottom, 12px)) clamp(16px, 4vw, 24px)',
         textAlign: 'center',
         boxSizing: 'border-box',
         overflowY: 'auto'

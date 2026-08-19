@@ -11,11 +11,24 @@ export default function BottomNav() {
   const { t } = useLanguage();
 
   const navItems = [
-    { icon: Home, label: t.dashboard, path: '/?fromNav=true', activePaths: ['/', '/dashboard'] },
-    { icon: MessageSquare, label: 'AstroSage', path: '/chat', activePaths: ['/chat'] },
-    { icon: User, label: t.profileTitle, path: '/profile', activePaths: ['/profile'] },
-    { icon: Info, label: 'About', path: '/about', activePaths: ['/about'] },
+    { id: 'home', icon: Home, label: t.dashboard, path: '/dashboard', activePaths: ['/', '/dashboard'] },
+    { id: 'chat', icon: MessageSquare, label: 'AstroSage', path: '/chat', activePaths: ['/chat'] },
+    { id: 'profile', icon: User, label: t.profileTitle, path: '/profile', activePaths: ['/profile'] },
+    { id: 'about', icon: Info, label: 'About', path: '/about', activePaths: ['/about'] },
   ];
+
+  const handleNavigate = (item: typeof navItems[0]) => {
+    if (item.id === 'home') {
+      const profile = typeof window !== 'undefined' ? localStorage.getItem('astroraga_profile') : null;
+      if (profile) {
+        router.push('/dashboard');
+      } else {
+        router.push('/');
+      }
+    } else {
+      router.push(item.path);
+    }
+  };
 
   return (
     <nav className="nav-bottom">
@@ -25,8 +38,8 @@ export default function BottomNav() {
 
         return (
           <button
-            key={item.path}
-            onClick={() => router.push(item.path)}
+            key={item.id}
+            onClick={() => handleNavigate(item)}
             className={`nav-item ${isActive ? 'active' : ''}`}
             style={{ 
               background: 'none', 
@@ -39,7 +52,7 @@ export default function BottomNav() {
             }}
           >
             <Icon size={20} style={{ marginBottom: '2px' }} />
-            <span style={{ fontSize: '0.6rem' }}>{item.label}</span>
+            <span style={{ fontSize: '0.62rem' }}>{item.label}</span>
             
             <AnimatePresence>
               {isActive && (
@@ -48,13 +61,15 @@ export default function BottomNav() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ type: 'spring', stiffness: 350, damping: 25 }}
                   style={{
                     position: 'absolute',
-                    inset: '4px',
-                    background: 'rgba(251, 191, 36, 0.1)',
-                    borderRadius: '20px',
+                    inset: '3px',
+                    background: 'rgba(251, 191, 36, 0.12)',
+                    borderRadius: '16px',
                     zIndex: -1,
-                    border: '1px solid rgba(251, 191, 36, 0.15)'
+                    border: '1px solid rgba(251, 191, 36, 0.28)',
+                    boxShadow: '0 0 12px rgba(251, 191, 36, 0.15) inset'
                   }}
                 />
               )}
