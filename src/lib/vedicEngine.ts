@@ -885,7 +885,7 @@ Resonance Gemstone: **${rashi.gemstoneEn}** | Power Colors: **${rashi.luckyColor
  * Intelligent Incisive Vedic Astrology Dialogue Generator for Chat Fallback
  */
 export function generateVedicChatResponse(userMessage: string, profile?: SeekerProfile, language: 'en' | 'kn' = 'en'): string {
-  const query = (userMessage || '').toLowerCase();
+  const query = (userMessage || '').toLowerCase().trim();
   const isKn = language === 'kn';
   const name = profile?.name || (isKn ? 'ಜಿಜ್ಞಾಸು' : 'Seeker');
   
@@ -899,28 +899,130 @@ export function generateVedicChatResponse(userMessage: string, profile?: SeekerP
 
   const rashi = RASHI_DATA[rashiKey];
   const nakshatra = NAKSHATRA_DATA[nakshatraKey];
+  const pada = profile?.pada || '1';
+
+  // Deterministic seed based on query length and time for variation
+  const queryHash = query.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const variant = queryHash % 3;
 
   if (isKn) {
-    if (query.includes('ಶನಿ') || query.includes('ದಶೆ') || query.includes('ಸಾಡೇ') || query.includes('shani') || query.includes('ಕಷ್ಟ')) {
-      return `${name}, ಶನಿ ಮಹಾರಾಜರು ಕಟು ಸತ್ಯವನ್ನು ಕಲಿಸುವ ಕರ್ಮಫಲದಾತರು. ನಿಮ್ಮ ${rashi.kn} ರಾಶಿಯ ಮೇಲೆ ಶನಿಯ ಪ್ರಭಾವವು ಸುಳ್ಳು ಮತ್ತು ಸೋಮಾರಿತನವನ್ನು ಸುಟ್ಟು ಹಾಕುತ್ತದೆ.\n⚠️ ನಿಮ್ಮ ಪ್ರಮುಖ ತಪ್ಪು: ${rashi.shadowKn}.\nಪರಿಹಾರ: ಪ್ರತಿ ಶನಿವಾರ ಸಂಜೆ ಹನುಮಾನ್ ಚಾಲೀಸಾ ಪಠಿಸಿ, ನಿರ್ಗತಿಕರಿಗೆ ಎಳ್ಳೆಣ್ಣೆ ದೀಪ ಹಚ್ಚಿ. ಶಿಸ್ತಿನಿಂದ ಕೆಲಸ ಮಾಡಿದರೆ ಶನಿಯೇ ಮಹಾನ್ ರಾಜಯೋಗ ಕರುಣಿಸುತ್ತಾನೆ.`;
+    // 1. Greetings
+    if (query === 'hi' || query === 'hello' || query === 'namaste' || query === 'ನಮಸ್ಕಾರ' || query === 'ಹಲೋ') {
+      return `ನಮಸ್ಕಾರ ${name}! ನಾನು ಆಸ್ಟ್ರೋಸೇಜ್ (AstroSage). ನಿಮ್ಮ ${rashi.kn} ರಾಶಿ ಮತ್ತು ${nakshatra.kn} ನಕ್ಷತ್ರದ ಗ್ರಹಗತಿಗಳನ್ನು ಪರಿಶೀಲಿಸಿದ್ದೇನೆ. ನಿಮ್ಮ ವೃತ್ತಿ, ಹಣಕಾಸು, ವಿವಾಹ ಅಥವಾ ಯಾವುದೇ ಆಧ್ಯಾತ್ಮಿಕ ಪ್ರಶ್ನೆಗಳನ್ನು ಮುಕ್ತವಾಗಿ ಕೇಳಿ.`;
     }
-    if (query.includes('ವೃತ್ತಿ') || query.includes('ಕೆಲಸ') || query.includes('ಉದ್ಯೋಗ') || query.includes('career') || query.includes('job') || query.includes('ಹಣ') || query.includes('money')) {
-      return `ನಿಮ್ಮ ${rashi.kn} ರಾಶಿ ಮತ್ತು ${nakshatra.kn} ನಕ್ಷತ್ರದ ಪ್ರಕಾರ, ನಿಮ್ಮ ವೃತ್ತಿಯಲ್ಲಿ ಯಶಸ್ಸಿಗೆ ಅಡ್ಡಿಯಾಗುತ್ತಿರುವುದು ನಿಮ್ಮ ${rashi.shadowKn}.\n⚠️ ಎಚ್ಚರಿಕೆ: ${nakshatra.karmicWarningKn}\nನಿಮಗೆ ${nakshatra.turningAges} ನೇ ವಯಸ್ಸಿನಲ್ಲಿ ಆರ್ಥಿಕ ಪ್ರಗತಿ ಉಂಟಾಗುತ್ತದೆ. ಗುರುವಾರ ಅಥವಾ ಭಾನುವಾರ ಪ್ರಮುಖ ನಿರ್ಧಾರಗಳನ್ನು ಕೈಗೊಳ್ಳಿ.`;
+
+    // 2. Shani / Sade Sati / Dasha / Hardship
+    if (query.includes('ಶನಿ') || query.includes('ದಶೆ') || query.includes('ಸಾಡೇ') || query.includes('ಕಷ್ಟ') || query.includes('ಶನಿವಾರ') || query.includes('shani')) {
+      if (variant === 0) {
+        return `${name}, ಶನಿ ಮಹಾರಾಜರು ಕಟು ಸತ್ಯವನ್ನು ಕಲಿಸುವ ಕರ್ಮಫಲದಾತರು. ನಿಮ್ಮ ${rashi.kn} ರಾಶಿಯ ಮೇಲೆ ಶನಿಯ ಸಂಚಾರವು ಸುಳ್ಳು ಭ್ರಮೆಗಳನ್ನು ಮತ್ತು ಸೋಮಾರಿತನವನ್ನು ಸುಟ್ಟು ಹಾಕುತ್ತದೆ.\n⚠️ ನಿಮ್ಮ ಪ್ರಮುಖ ಆಂತರಿಕ ದೋಷ: ${rashi.shadowKn}.\nಪರಿಹಾರ: ಪ್ರತಿ ಶನಿವಾರ ಸಂಜೆ ಹನುಮಾನ್ ಚಾಲೀಸಾ ಪಠಿಸಿ, ನಿರ್ಗತಿಕರಿಗೆ ಎಳ್ಳೆಣ್ಣೆ ದೀಪ ಹಚ್ಚಿ. ಶಿಸ್ತಿನಿಂದ ಕೆಲಸ ಮಾಡಿದರೆ ಶನಿಯೇ ಮಹಾನ್ ರಾಜಯೋಗ ಕರುಣಿಸುತ್ತಾನೆ.`;
+      } else if (variant === 1) {
+        return `ಶನಿ ದೇವನು ಕಷ್ಟ ನೀಡುತ್ತಿಲ್ಲ, ನಿಮ್ಮ ಕರ್ಮದ ಲೆಕ್ಕವನ್ನು ಚುಕ್ತಾ ಮಾಡುತ್ತಿದ್ದಾನೆ ${name}. ${rashi.kn} ರಾಶಿಗೆ ಶನಿಯ ಪಾಠ ಕಠಿಣವಾದರೂ, ನಿಮ್ಮ ಶಕ್ತಿ ${rashi.strengthsKn}.\nಪರಿಹಾರ: ಶನಿವಾರ ಕಪ್ಪು ಎಳ್ಳು ಅಥವಾ ಕಾಗೆಗಳಿಗೆ ಅನ್ನ ಹಾಕಿ. ಕಷ್ಟದ ಸಮಯದಲ್ಲೂ ನೀತಿ ಧರ್ಮವನ್ನು ಬಿಡಬೇಡಿ.`;
+      } else {
+        return `${name}, ಶನಿ ದಶಾ ಕಾಲದಲ್ಲಿ ಆತುರ ಮತ್ತು ಕೋಪ ನಿಮ್ಮ ದೊಡ್ಡ ಶತ್ರು. ${nakshatra.kn} ನಕ್ಷತ್ರದವರಿಗೆ ${nakshatra.karmicWarningKn}\nಪ್ರತಿದಿನ ಸಂಜೆ ರುದ್ರಾಕ್ಷಿ ಮಾಲೆಯಲ್ಲಿ "ಓಂ ಶಂ ಶನೈಶ್ಚರಾಯ ನಮಃ" 108 ಬಾರಿ ಜಪಿಸಿ.`;
+      }
     }
-    if (query.includes('ಮದುವೆ') || query.includes('ಸಂಬಂಧ') || query.includes('ದಾಂಪತ್ಯ') || query.includes('love') || query.includes('marriage')) {
-      return `ನಿಮ್ಮ ಸಂಬಂಧದಲ್ಲಿ ಬಿರುಕು ಮೂಡಲು ಮುಖ್ಯ ಕಾರಣ: ನಿಮ್ಮ ಅತಿಯಾದ ನಿರೀಕ್ಷೆ ಮತ್ತು ${rashi.shadowKn}.\nಸಂಗಾತಿಯನ್ನು ಬದಲಾಯಿಸಲು ಪ್ರಯತ್ನಿಸಬೇಡಿ; ನಿಮ್ಮ ಸಿಟ್ಟನ್ನು ನಿಯಂತ್ರಿಸಿ.\nಶುಕ್ರವಾರದಂದು ${rashi.deityKn} ರನ್ನು ಪ್ರಾರ್ಥಿಸಿ ಮತ್ತು ಹಾಲಿನ ನೈವೇದ್ಯ ಅರ್ಪಿಸಿ.`;
+
+    // 3. Career / Job / Promotion / Business / Money
+    if (query.includes('ವೃತ್ತಿ') || query.includes('ಕೆಲಸ') || query.includes('ಉದ್ಯೋಗ') || query.includes('ಪ್ರಮೋಷನ್') || query.includes('ಹಣ') || query.includes('ಸಾಲ') || query.includes('ವ್ಯಾಪಾರ') || query.includes('business') || query.includes('career') || query.includes('job') || query.includes('money')) {
+      if (variant === 0) {
+        return `ನಿಮ್ಮ ${rashi.kn} ರಾಶಿ ಮತ್ತು ${nakshatra.kn} ನಕ್ಷತ್ರದ ಪ್ರಕಾರ, ನಿಮ್ಮ ವೃತ್ತಿಯಲ್ಲಿ ಯಶಸ್ಸಿಗೆ ಅಡ್ಡಿಯಾಗುತ್ತಿರುವುದು ನಿಮ್ಮ ${rashi.shadowKn}.\n⚠️ ಎಚ್ಚರಿಕೆ: ${nakshatra.karmicWarningKn}\nನಿಮಗೆ ${nakshatra.turningAges} ನೇ ವಯಸ್ಸಿನಲ್ಲಿ ಮಹಾನ್ ಆರ್ಥಿಕ ಪ್ರಗತಿ ಉಂಟಾಗುತ್ತದೆ. ಗುರುವಾರ ಅಥವಾ ಭಾನುವಾರ ಪ್ರಮುಖ ನಿರ್ಧಾರಗಳನ್ನು ಕೈಗೊಳ್ಳಿ.`;
+      } else if (variant === 1) {
+        return `${name}, ನಿಮ್ಮ ರಾಶ್ಯಾಧಿಪತಿ ${rashi.lordKn} ನಿಮ್ಮ ಕಠಿಣ ಪರಿಶ್ರಮವನ್ನು ಗಮನಿಸುತ್ತಿದ್ದಾನೆ. ಅನಗತ್ಯ ಖರ್ಚುಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ.\nಶುಭ ರತ್ನ: **${rashi.gemstoneKn}** ಧರಿಸುವುದರಿಂದ ವೃತ್ತಿಯಲ್ಲಿ ಸ್ಥಿರತೆ ಮತ್ತು ಬಡ್ತಿ ಲಭಿಸುತ್ತದೆ.\nವ್ಯಾಪಾರದಲ್ಲಿ ನಂಬಿಕಸ್ಥರ ಜೊತೆ ಮಾತ್ರ ಒಪ್ಪಂದ ಮಾಡಿಕೊಳ್ಳಿ.`;
+      } else {
+        return `ಆರ್ಥಿಕ ಕ್ಷೇತ್ರದಲ್ಲಿ ${nakshatra.kn} ನಕ್ಷತ್ರದವರು ಅದ್ಭುತ ಸಾಧನೆ ಮಾಡಬಲ್ಲರು. ಆದರೆ ನಿಮ್ಮ ಹಣ ಸೋರಿಕೆಗೆ ಕಾರಣ: ${rashi.shadowKn}.\nಪರಿಹಾರ: ಲಕ್ಷ್ಮೀ ನಾರಾಯಣ ಹೃದಯ ಸ್ತೋತ್ರ ಪಠಿಸಿ ಮತ್ತು ${rashi.luckyColorKn} ವರ್ಣದ ವಸ್ತುಗಳನ್ನು ಬಳಸಿ.`;
+      }
     }
-    return `${name}, ನಿಮ್ಮ ಜಾತಕದ ಸತ್ಯ ಇಲ್ಲಿದೆ: ${rashi.kn} ಮತ್ತು ${nakshatra.kn} ನಕ್ಷತ್ರವು ನಿಮಗೆ ಅಗಾಧ ಶಕ್ತಿ ನೀಡಿದೆ, ಆದರೆ ನಿಮ್ಮ ${rashi.shadowKn} ನಿಮ್ಮ ಪ್ರಗತಿಯನ್ನು ತಡೆಯುತ್ತಿದೆ.\n${nakshatra.karmicWarningKn}\nಪ್ರತಿದಿನ ಮುಂಜಾನೆ ಸೂರ್ಯ ನಮಸ್ಕಾರ ಮಾಡಿ ಧ್ಯಾನದಲ್ಲಿ ತೊಡಗಿಸಿಕೊಳ್ಳಿ.`;
+
+    // 4. Marriage / Love / Relationship
+    if (query.includes('ಮದುವೆ') || query.includes('ಸಂಬಂಧ') || query.includes('ದಾಂಪತ್ಯ') || query.includes('ಪ್ರೀತಿ') || query.includes('ಲವ್') || query.includes('marriage') || query.includes('love') || query.includes('divorce')) {
+      if (variant === 0) {
+        return `ನಿಮ್ಮ ಸಂಬಂಧದಲ್ಲಿ ಬಿರುಕು ಮೂಡಲು ಮುಖ್ಯ ಕಾರಣ: ನಿಮ್ಮ ಅತಿಯಾದ ನಿರೀಕ್ಷೆ ಮತ್ತು ${rashi.shadowKn}.\nಸಂಗಾತಿಯನ್ನು ಬದಲಾಯಿಸಲು ಪ್ರಯತ್ನಿಸಬೇಡಿ; ನಿಮ್ಮ ಸಿಟ್ಟನ್ನು ನಿಯಂತ್ರಿಸಿ.\nಶುಕ್ರವಾರದಂದು ${rashi.deityKn} ರನ್ನು ಪ್ರಾರ್ಥಿಸಿ ಮತ್ತು ಹಾಲಿನ ನೈವೇದ್ಯ ಅರ್ಪಿಸಿ.`;
+      } else {
+        return `${name}, ${rashi.kn} ರಾಶಿಯವರ ಪ್ರೇಮ ಜೀವನದಲ್ಲಿ ಅಹಂಕಾರ ಮತ್ತು ಸಂವಹನದ ಕೊರತೆ ಅಡ್ಡಿಯಾಗುತ್ತದೆ. ${nakshatra.kn} ಪಾದ ${pada} ದ ಶಕ್ತಿ ಶಾಂತಿಯನ್ನು ಬಯಸುತ್ತದೆ.\nಪರಿಹಾರ: ಶುಕ್ರವಾರ ಗೌರೀ-ಶಂಕರ ಪೂಜೆ ಮಾಡಿ. ಸಂಗಾತಿಯೊಂದಿಗೆ ತೆರೆದ ಮನಸ್ಸಿನಿಂದ ಮಾತನಾಡಿ.`;
+      }
+    }
+
+    // 5. Health / Mental Peace / Anxiety
+    if (query.includes('ಆರೋಗ್ಯ') || query.includes('ಮನಸ್ಸು') || query.includes('ನೆಮ್ಮದಿ') || query.includes('ಶಾಂತಿ') || query.includes('ಆತಂಕ') || query.includes('ಕಾಯಿಲೆ') || query.includes('health') || query.includes('peace') || query.includes('stress')) {
+      return `${name}, ನಿಮ್ಮ ಜಾತಕದ ಪ್ರಕಾರ ಶಾರೀರಿಕ ದುರ್ಬಲತೆ: **${rashi.healthVulnKn}**.\nಅತಿಯಾದ ಮಾನಸಿಕ ಒತ್ತಡವು ನಿಮ್ಮ ರೋಗನಿರೋಧಕ ಶಕ್ತಿಯನ್ನು ಕುಂದಿಸುತ್ತದೆ.\nಪರಿಹಾರ: ಪ್ರತಿದಿನ ಬೆಳಿಗ್ಗೆ 15 ನಿಮಿಷ ಪ್ರಾಣಾಯಾಮ ಮಾಡಿ. ${rashi.deityKn} ರ ಧ್ಯಾನವು ನಿಮಗೆ ಅಗಾಧ ಮಾನಸಿಕ ನೆಮ್ಮದಿ ನೀಡುತ್ತದೆ.`;
+    }
+
+    // 6. Rahu / Ketu / Dosha / Evil Eye / Enemies
+    if (query.includes('ರಾಹು') || query.includes('ಕೇತು') || query.includes('ದೋಷ') || query.includes('ದೃಷ್ಟಿ') || query.includes('ಶತ್ರು') || query.includes('ಮಾಟ') || query.includes('rahu') || query.includes('ketu') || query.includes('dosha')) {
+      return `${name}, ನಿಮ್ಮ ನಕ್ಷತ್ರ ${nakshatra.kn} ನ ಅಧಿಪತಿ ${nakshatra.lordKn}. ಯಾವುದೇ ನಕಾರಾತ್ಮಕ ಶಕ್ತಿ ಅಥವಾ ದೃಷ್ಟಿದೋಷವನ್ನು ಹೋಗಲಾಡಿಸಲು ಸುದರ್ಶನ ಮಂತ್ರ ಅಥವಾ ದುರ್ಗಾ ಕವಚ ಪಠಿಸಿ.\nಶತ್ರುಗಳ ಕುತಂತ್ರಕ್ಕೆ ಹೆದರಬೇಡಿ; ನಿಮ್ಮ ಸತ್ಯ ಧರ್ಮವೇ ನಿಮ್ಮನ್ನು ರಕ್ಷಿಸುತ್ತದೆ.`;
+    }
+
+    // 7. Gemstone / Mantra / Lucky Color
+    if (query.includes('ರತ್ನ') || query.includes('ಬಣ್ಣ') || query.includes('ಮಂತ್ರ') || query.includes('ಅದೃಷ್ಟ') || query.includes('gemstone') || query.includes('color') || query.includes('lucky')) {
+      return `ನಿಮ್ಮ ${rashi.kn} (${nakshatra.kn}) ದೈವಿಕ ಅಂಶಗಳು:\n💎 ಅದೃಷ್ಟ ರತ್ನ: **${rashi.gemstoneKn}**\n🎨 ಶುಭ ವರ್ಣ: **${rashi.luckyColorKn}**\n🕉️ ಆರಾಧ್ಯ ದೈವ: **${rashi.deityKn}**\n✨ ಪ್ರಮುಖ ಬದಲಾವಣೆಯ ವಯಸ್ಸು: **${nakshatra.turningAges}**.`;
+    }
+
+    // 8. Spiritual / Purpose / Moksha
+    if (query.includes('ಆಧ್ಯಾತ್ಮ') || query.includes('ಗುರಿ') || query.includes('ಮೋಕ್ಷ') || query.includes('ಧ್ಯಾನ') || query.includes('ದೇವರು') || query.includes('god') || query.includes('spiritual')) {
+      return `${name}, ನಿಮ್ಮ ಆತ್ಮದ ಮುಖ್ಯ ಧ್ಯೇಯ: **${nakshatra.purposeKn}**\nನಿಮ್ಮ ಕರ್ಮ ಸಾಧನೆ: ${nakshatra.karmicKn}.\nದೈನಂದಿನ ಜೀವನದಲ್ಲಿ ಸತ್ಯ ಮತ್ತು ಪರೋಪಕಾರವನ್ನು ಆಚರಿಸುವುದೇ ಅತ್ಯುನ್ನತ ಪೂಜೆ.`;
+    }
+
+    // Default Incisive Insight
+    return `${name}, ನಿಮ್ಮ ${rashi.kn} ರಾಶಿ ಹಾಗೂ ${nakshatra.kn} (ಪಾದ ${pada}) ನಕ್ಷತ್ರದ ಗ್ರಹಗತಿಗಳ ನಿಖರ ದರ್ಶನ:\n✨ ನಿಮ್ಮ ನೈಸರ್ಗಿಕ ಶಕ್ತಿ: ${rashi.strengthsKn}.\n⚠️ ನಿಮ್ಮ ಮುಖ್ಯ ಆಂತರಿಕ ದೋಷ: ${rashi.shadowKn}.\n${nakshatra.karmicWarningKn}\nನಿಮ್ಮ ಪ್ರಮುಖ ಜೀವನದ ತಿರುವುಗಳು ${nakshatra.turningAges} ನೇ ವಯಸ್ಸಿನಲ್ಲಿ ಆರಂಭವಾಗುತ್ತವೆ. ನಿಷ್ಠೆಯಿಂದ ಕರ್ತವ್ಯ ಮಾಡಿ!`;
   } else {
-    if (query.includes('shani') || query.includes('saturn') || query.includes('dasha') || query.includes('sade') || query.includes('struggle')) {
-      return `${name}, Lord Shani does not punish without purpose; He is burning away your false delusions.\n⚠️ Your critical blind spot: ${rashi.shadowEn}.\nRemedy: Recite the Hanuman Chalisa at dusk on Saturdays. Face your debts honestly and stop procrastinating on difficult decisions.`;
+    // ENGLISH DIALOGUE LOGIC
+    // 1. Greetings
+    if (query === 'hi' || query === 'hello' || query === 'namaste' || query === 'hey' || query === 'greetings') {
+      return `Greetings ${name}! I am AstroSage. The cosmic alignments for ${rashi.en} under the influence of ${nakshatra.en} (Pada ${pada}) are vivid. What specific dimension of your life—career, finance, relationships, or karmic path—shall we examine today?`;
     }
-    if (query.includes('career') || query.includes('job') || query.includes('business') || query.includes('money')) {
-      return `For your ${rashi.en} alignment in ${nakshatra.en}, professional stagnation is directly caused by ${rashi.shadowEn}.\n⚠️ Warning: ${nakshatra.karmicWarningEn}\nKey turning milestones occur around ages **${nakshatra.turningAges}**. Take command and eliminate speculative leaks.`;
+
+    // 2. Shani / Saturn / Sade Sati / Difficult Periods
+    if (query.includes('shani') || query.includes('saturn') || query.includes('sade') || query.includes('dasha') || query.includes('struggle') || query.includes('suffering') || query.includes('hardship')) {
+      if (variant === 0) {
+        return `${name}, Lord Shani does not punish without divine intent; He strips away arrogance and illusions.\n⚠️ Your critical vulnerability under Saturn's gaze: **${rashi.shadowEn}**.\nRemedy: Recite the Hanuman Chalisa at twilight on Saturdays and feed black sesame seeds to crows or stray animals. Through disciplined work, Saturn turns hardships into an unshakeable empire.`;
+      } else if (variant === 1) {
+        return `Saturn's transit across ${rashi.en} demands ruthless accountability. You are being forced to refine your core strength: **${rashi.strengthsEn}**.\nDo not look for shortcuts or escape routes. Honor all ethical obligations and face your responsibilities directly.`;
+      } else {
+        return `${name}, during major Saturn periods, haste is your greatest poison. For ${nakshatra.en}, ${nakshatra.karmicWarningEn}\nChant "Om Sham Shanaishcharaya Namah" 108 times at dusk on Saturdays.`;
+      }
     }
-    if (query.includes('marriage') || query.includes('love') || query.includes('relationship') || query.includes('partner')) {
-      return `Relationship turbulence stems from your tendency toward ${rashi.shadowEn}.\nStop projecting impossible expectations onto imperfect partners.\nHonor genuine dialogue on Fridays and wear **${rashi.luckyColorEn}** accents to harmonize Venusian currents.`;
+
+    // 3. Career / Business / Promotion / Wealth / Money
+    if (query.includes('career') || query.includes('job') || query.includes('work') || query.includes('business') || query.includes('promotion') || query.includes('money') || query.includes('wealth') || query.includes('finance') || query.includes('debt') || query.includes('switch')) {
+      if (variant === 0) {
+        return `For your ${rashi.en} alignment in ${nakshatra.en}, career breakthroughs are obstructed by **${rashi.shadowEn}**.\n⚠️ Strategic Warning: ${nakshatra.karmicWarningEn}\nPivotal inflection ages occur around **${nakshatra.turningAges}**. Take decisive command on Thursdays and Sundays.`;
+      } else if (variant === 1) {
+        return `${name}, planetary ruler ${rashi.lordEn} dictates that your financial prosperity is tied to **${nakshatra.purposeEn}**.\nResonance Gemstone: **${rashi.gemstoneEn}** will protect your wealth pipeline.\nAvoid speculative high-risk gambles and focus on structured, long-term asset building.`;
+      } else {
+        return `Your nakshatra ${nakshatra.en} possesses unmatched potential for leadership. However, financial leaks occur when you succumb to **${rashi.shadowEn}**.\nRemedy: Offer white flowers or donate to students/scholars on Wednesdays to activate Mercury and Jupiter harmonics.`;
+      }
     }
-    return `${name}, the unfiltered celestial diagnosis for ${rashi.en} (${nakshatra.en}):\nYour strength is ${rashi.strengthsEn}, but your downfall is ${rashi.shadowEn}.\n${nakshatra.karmicWarningEn}\nAnchor your daily routine in disciplined meditation and wear **${rashi.gemstoneEn}** for grounding.`;
+
+    // 4. Marriage / Love / Relationship
+    if (query.includes('marriage') || query.includes('love') || query.includes('relationship') || query.includes('partner') || query.includes('spouse') || query.includes('divorce') || query.includes('breakup') || query.includes('soulmate')) {
+      if (variant === 0) {
+        return `Relationship friction in your chart stems directly from **${rashi.shadowEn}**.\nStop projecting impossible ideals onto mortal partners; cultivate open vulnerability.\nRemedy: Worship **${rashi.deityEn}** on Fridays and wear **${rashi.luckyColorEn}** accents to harmonize Venusian frequencies.`;
+      } else {
+        return `${name}, ${rashi.en} creates intense passions, but ${nakshatra.en} requires authentic spiritual friendship as the foundation of marriage.\nNever settle unresolved grievances in anger. Dedicate Friday twilight to silence and heart-centered communication.`;
+      }
+    }
+
+    // 5. Health / Mental Peace / Stress / Anxiety
+    if (query.includes('health') || query.includes('illness') || query.includes('peace') || query.includes('mental') || query.includes('stress') || query.includes('anxiety') || query.includes('depression') || query.includes('sleep')) {
+      return `${name}, your Vedic constitution highlights physiological vulnerability in: **${rashi.healthVulnEn}**.\nChronic worry depletes your vital Ojas (life force).\nRemedy: Practice 15 minutes of Nadi Shodhana Pranayama at dawn. Meditate upon **${rashi.deityEn}** to restore neurological and cellular equilibrium.`;
+    }
+
+    // 6. Rahu / Ketu / Dosha / Protection / Evil Eye
+    if (query.includes('rahu') || query.includes('ketu') || query.includes('dosha') || query.includes('evil') || query.includes('nazar') || query.includes('enemy') || query.includes('curse')) {
+      return `${name}, your nakshatra ${nakshatra.en} is governed by **${nakshatra.lordEn}**. To dissolve psychic debris, jealousy, or shadow doshas, recite the Mahamrityunjaya Mantra 11 times daily.\nYour righteous integrity is an impenetrable cosmic shield.`;
+    }
+
+    // 7. Gemstone / Lucky Color / Numbers
+    if (query.includes('gemstone') || query.includes('stone') || query.includes('color') || query.includes('lucky') || query.includes('number') || query.includes('mantra')) {
+      return `Cosmic alignments for ${rashi.en} (${nakshatra.en} - Pada ${pada}):\n💎 Resonance Gemstone: **${rashi.gemstoneEn}**\n🎨 Harmonious Colors: **${rashi.luckyColorEn}**\n🕉️ Presiding Deity: **${rashi.deityEn}**\n🌟 Major Destiny Milestones: **Ages ${nakshatra.turningAges}**.`;
+    }
+
+    // 8. Spiritual Awakening / Purpose / Dharma
+    if (query.includes('spiritual') || query.includes('purpose') || query.includes('dharma') || query.includes('moksha') || query.includes('god') || query.includes('meditation')) {
+      return `${name}, your incarnation's supreme purpose is: **${nakshatra.purposeEn}**\nYour evolutionary lesson: **${nakshatra.karmicEn}**.\nAnchor yourself in daily selfless service and sacred devotion.`;
+    }
+
+    // Default Incisive Insight
+    return `${name}, here is the incisive celestial diagnosis for ${rashi.en} (${nakshatra.en} - Pada ${pada}):\n✨ Core Gift: **${rashi.strengthsEn}**.\n⚠️ Unconscious Shadow Trap: **${rashi.shadowEn}**.\n${nakshatra.karmicWarningEn}\nTransformational life cycles activate powerfully around ages **${nakshatra.turningAges}**. Stay anchored in truth.`;
   }
 }

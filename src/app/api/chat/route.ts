@@ -13,6 +13,15 @@ function isCleanKannada(text: string): boolean {
   return kannadaChars > 15;
 }
 
+function cleanAiOutput(rawText: string): string {
+  if (!rawText) return "";
+  let cleaned = rawText;
+  cleaned = cleaned.replace(/<think>[\s\S]*?<\/think>/gi, '');
+  cleaned = cleaned.replace(/<thought>[\s\S]*?<\/thought>/gi, '');
+  cleaned = cleaned.replace(/```thinking[\s\S]*?```/gi, '');
+  return cleaned.trim();
+}
+
 export async function POST(req: Request) {
   try {
     // 1. Rate Limiting Protection
@@ -65,22 +74,23 @@ export async function POST(req: Request) {
     const openRouterKey = customKey.startsWith("sk-or-") ? customKey : process.env.OPENROUTER_API_KEY;
     
     const systemPrompt = `You are "AstroSage", an ancient, deeply intuitive, razor-sharp Master Vedic Astrologer (Jyotishi). 
-    Seeker: ${profile.name}
-    Rashi: ${profile.rashi}
-    Nakshatra: ${profile.nakshatra} (Pada ${profile.pada})
-    Birth Date: ${profile.birthDate || 'Known'}
-    Birth Time: ${profile.birthTime || 'Known'}
+Seeker: ${profile.name}
+Rashi: ${profile.rashi}
+Nakshatra: ${profile.nakshatra} (Pada ${profile.pada})
+Birth Date: ${profile.birthDate || 'Known'}
+Birth Time: ${profile.birthTime || 'Known'}
 
-    CORE PERSONA & UNCOMPROMISING TRUTH:
-    - DO NOT give generic platitudes, Hallmark quotes, or sanitized polite fluff. The user wants genuine, deep, penetrating Vedic truth.
-    - Reveal the real planetary mechanics, karmic debts, and the hidden Karmic Shadow (ಆಂತರಿಕ ದೋಷ / ಅಂಧಬಿಂದು): call out exact behavioral blind spots, emotional traps, relationship illusions, or financial vulnerabilities honestly.
-    - Ground your answers in classical Jyotisha principles, planetary periods (Dashas), and direct, actionable, non-generic remedies.
-    - Maintain sacred reverence for Vedic traditions while being psychologically incisive, authentic, and direct.
+CORE PERSONA & UNCOMPROMISING TRUTH:
+- DO NOT output internal reasoning, chain-of-thought, or restatements. Answer directly.
+- DO NOT give generic platitudes, Hallmark quotes, or sanitized polite fluff. The user wants genuine, deep, penetrating Vedic truth.
+- Reveal the real planetary mechanics, karmic debts, and the hidden Karmic Shadow (ಆಂತರಿಕ ದೋಷ / ಅಂಧಬಿಂದು): call out exact behavioral blind spots, emotional traps, relationship illusions, or financial vulnerabilities honestly.
+- Ground your answers in classical Jyotisha principles, planetary periods (Dashas), and direct, actionable, non-generic remedies.
+- Maintain sacred reverence for Vedic traditions while being psychologically incisive, authentic, and direct.
 
-    LANGUAGE PREFERENCE & FORMAT:
-    ${isKn ? 'CRITICAL: Since the seeker prefers Kannada, you MUST provide your response ONLY in pure, rich, classical Kannada (ಕನ್ನಡ) without any English or foreign words. Format your response in 4 to 6 concise, powerful lines.' : 'Provide your response in eloquent, incisive English. Format in 4 to 6 concise, powerful lines.'}
+LANGUAGE PREFERENCE & FORMAT:
+${isKn ? 'CRITICAL: Since the seeker prefers Kannada, you MUST provide your response ONLY in pure, rich, classical Kannada (ಕನ್ನಡ) without any English or foreign words. Format your response in 4 to 6 concise, powerful lines.' : 'Provide your response in eloquent, incisive English. Format in 4 to 6 concise, powerful lines.'}
 
-    Answer the seeker's question directly with depth and penetrating clarity.`;
+Answer the seeker's question directly with depth and penetrating clarity.`;
 
     let responseText = "";
 
@@ -102,8 +112,9 @@ export async function POST(req: Request) {
         const lastMsg = sanitizedMessages[sanitizedMessages.length - 1].content;
         const result = await chat.sendMessage(lastMsg);
         const text = result.response.text();
-        if (text && (!isKn || isCleanKannada(text))) {
-          responseText = text;
+        const cleaned = cleanAiOutput(text);
+        if (cleaned && (!isKn || isCleanKannada(cleaned))) {
+          responseText = cleaned;
         }
       } catch (err) {
         console.warn("Chat Gemini error:", err);
@@ -113,11 +124,11 @@ export async function POST(req: Request) {
     // 4. Try OpenRouter Verified Active Free Models
     if (!responseText && openRouterKey) {
       const activeFreeModels = [
-        "openrouter/free",
-        "liquid/lfm-2.5-2.6b:free",
-        "nvidia/nemotron-3-nano-30b-a3b:free",
-        "openai/gpt-oss-20b:free",
-        "nvidia/nemotron-3.5-lightning:free"
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "mistralai/mistral-small-24b-instruct-2501:free",
+        "google/gemini-2.0-flash-exp:free",
+        "meta-llama/llama-3.1-8b-instruct:free",
+        "qwen/qwen-2.5-72b-instruct:free"
       ];
 
       for (const modelId of activeFreeModels) {
@@ -146,8 +157,9 @@ export async function POST(req: Request) {
           if (response.ok) {
             const data = await response.json();
             const candidate = data.choices?.[0]?.message?.content;
-            if (candidate && (!isKn || isCleanKannada(candidate))) {
-              responseText = candidate;
+            const cleaned = cleanAiOutput(candidate);
+            if (cleaned && (!isKn || isCleanKannada(cleaned))) {
+              responseText = cleaned;
               break;
             }
           }
